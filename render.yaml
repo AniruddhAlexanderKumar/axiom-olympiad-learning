@@ -36,6 +36,9 @@ services:
       - key: JUDGE0_HOST
         sync: false
 
+# A free Render Postgres expires 30 days after creation (14-day grace, then it is
+# deleted). For a term-long deployment, upgrade this plan or set DATABASE_URL to
+# an external database and drop this block plus the fromDatabase entry above.
 databases:
   - name: zumi-db
     databaseName: zumi

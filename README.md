@@ -78,6 +78,25 @@ The service fails fast at boot if `DATABASE_URL` is missing on Render, because
 Render's filesystem is ephemeral and the embedded PGlite database would be lost
 on every deploy.
 
+### Free-tier limits on Render
+
+The blueprint starts on Render's free plans so a first deploy costs nothing, but
+"free" has real edges:
+
+- a free web service spins down after 15 minutes without traffic and takes about
+  a minute to wake. For an actual contest window, raise the service to the
+  `starter` plan ($7/mo) so it stays warm;
+- a free Postgres database **expires 30 days after creation**, with a 14-day
+  grace period before Render deletes it and its data. For a term-long
+  deployment, either upgrade the database to a paid plan or set `DATABASE_URL`
+  yourself to a database that does not expire (Neon's free tier works). No code
+  changes are needed: delete the `databases:` block and the `fromDatabase:`
+  entry from `render.yaml`, and provide `DATABASE_URL` as a normal environment
+  variable;
+- free instances have an ephemeral filesystem, which is why the service refuses
+  to boot on Render without `DATABASE_URL`: the embedded PGlite database would
+  be wiped on every restart.
+
 ### Code execution (Judge0)
 
 Student code is **never** executed on the API server, and Render cannot run the
@@ -85,7 +104,9 @@ Docker containers in `docker-compose.yml`. Point `JUDGE0_URL` at either:
 
 - the **RapidAPI-hosted** Judge0 (also set `JUDGE0_KEY` and `JUDGE0_HOST`), or
 - a self-hosted Judge0 instance reachable over HTTPS (Run it on a machine that
-  allows privileged containers).
+  allows privileged containers), or
+- the public `https://ce.judge0.com` instance for a quick demo only: it is rate
+  limited, shared by everyone, and should not receive real student submissions.
 
 Locally, self-host it with:
 

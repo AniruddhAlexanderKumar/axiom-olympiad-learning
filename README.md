@@ -1,4 +1,4 @@
-# Axiom Code
+# Zumi
 
 A mobile-first, Duolingo-style app that teaches coding through short daily lessons and trains students for programming contests. Two modes share one progress system:
 

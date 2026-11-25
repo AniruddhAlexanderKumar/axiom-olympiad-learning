@@ -312,7 +312,7 @@ competeRouter.post(
       'INSERT INTO friend_challenges (code, problem_id, creator_id) VALUES ($1, $2, $3) RETURNING id, code',
       [inviteCode(), problemId, user.id],
     );
-    res.status(201).json({ id: row?.id, code: row?.code, problemId, link: `axiomcode://challenge/${row?.code}` });
+    res.status(201).json({ id: row?.id, code: row?.code, problemId, link: `zumi://challenge/${row?.code}` });
   }),
 );
 

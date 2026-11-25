@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import * as Google from 'expo-auth-session/providers/google';
 import { useAuth } from '../src/auth';
 import { Mascot } from '../src/components/Mascot';
 import { Button, Card, Screen } from '../src/components/ui';
 import { colors, radius, spacing, type } from '../src/theme';
 import { ApiError } from '../src/api';
-
-const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? '';
 
 export default function AuthScreen() {
   const { signIn, register } = useAuth();
@@ -36,7 +33,7 @@ export default function AuthScreen() {
     <Screen>
       <View style={styles.hero}>
         <Mascot mood="happy" size={92} />
-        <Text style={type.display}>Axiom Code</Text>
+        <Text style={type.display}>Zumi</Text>
         <Text style={[type.body, { textAlign: 'center', color: colors.textMuted }]}>
           Short daily lessons in Python, then real contest problems.
         </Text>
@@ -81,58 +78,7 @@ export default function AuthScreen() {
           disabled={!email.trim() || password.length < 8}
         />
       </Card>
-
-      <Card style={{ gap: spacing.md }}>
-        <View style={styles.dividerRow}>
-          <View style={styles.divider} />
-          <Text style={type.tiny}>OR</Text>
-          <View style={styles.divider} />
-        </View>
-        {GOOGLE_CLIENT_ID ? (
-          <GoogleButton />
-        ) : (
-          <View style={{ gap: spacing.xs }}>
-            <Button
-              label="Continue with Google"
-              variant="secondary"
-              disabled
-              onPress={() => undefined}
-            />
-            <Text style={type.tiny}>
-              Set EXPO_PUBLIC_GOOGLE_CLIENT_ID AND GOOGLE_CLIENT_ID TO ENABLE GOOGLE SIGN-IN.
-            </Text>
-          </View>
-        )}
-      </Card>
     </Screen>
-  );
-}
-
-function GoogleButton() {
-  const { signInWithGoogle } = useAuth();
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: GOOGLE_CLIENT_ID,
-    webClientId: GOOGLE_CLIENT_ID,
-  });
-  const [error, setError] = useState<string | null>(null);
-
-  React.useEffect(() => {
-    if (response?.type !== 'success') return;
-    const idToken = response.params.id_token;
-    if (!idToken) {
-      setError('Google did not return an ID token.');
-      return;
-    }
-    signInWithGoogle(idToken)
-      .then((user) => router.replace(user.onboardingComplete ? '/(tabs)' : '/onboarding/goal'))
-      .catch((caught) => setError(caught instanceof ApiError ? caught.message : 'Google sign-in failed.'));
-  }, [response, signInWithGoogle]);
-
-  return (
-    <View style={{ gap: spacing.xs }}>
-      <Button label="Continue with Google" variant="secondary" disabled={!request} onPress={() => promptAsync()} />
-      {error ? <Text style={[type.small, { color: colors.redDark }]}>{error}</Text> : null}
-    </View>
   );
 }
 
@@ -170,6 +116,4 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.white,
   },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  divider: { flex: 1, height: 1, backgroundColor: colors.border },
 });

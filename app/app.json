@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Axiom Code",
-    "slug": "axiom-code",
-    "scheme": "axiomcode",
+    "name": "Zumi",
+    "slug": "zumi",
+    "scheme": "zumi",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -16,10 +16,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.axiomcode.app"
+      "bundleIdentifier": "com.zumi.app"
     },
     "android": {
-      "package": "com.axiomcode.app",
+      "package": "com.zumi.app",
       "edgeToEdgeEnabled": true
     },
     "web": {

@@ -96,6 +96,21 @@ interface BatchStatus {
 
 const TERMINAL = new Set([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
 
+/** Judge0 may be a hosted instance across the network, so bound every call. */
+async function judgeFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  try {
+    return await fetch(judgeUrl(path), { ...init, signal: AbortSignal.timeout(20_000) });
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === 'TimeoutError';
+    throw new HttpError(
+      502,
+      timedOut
+        ? 'Judge0 timed out. Try submitting again.'
+        : 'Judge0 is unreachable. Check JUDGE0_URL (or JUDGE0_KEY/JUDGE0_HOST for RapidAPI).',
+    );
+  }
+}
+
 export async function runTests(options: {
   language: string;
   source: string;
@@ -122,7 +137,7 @@ export async function runTests(options: {
     memory_limit: options.memoryLimitKb,
   }));
 
-  const submitResponse = await fetch(judgeUrl('/submissions/batch?base64_encoded=true'), {
+  const submitResponse = await judgeFetch('/submissions/batch?base64_encoded=true', {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ submissions }),
@@ -136,10 +151,8 @@ export async function runTests(options: {
   let statuses: BatchStatus[] = [];
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
-    const poll = await fetch(
-      judgeUrl(
-        `/submissions/batch?tokens=${tokens}&base64_encoded=true&fields=token,status,stdout,stderr,compile_output,time,memory`,
-      ),
+    const poll = await judgeFetch(
+      `/submissions/batch?tokens=${tokens}&base64_encoded=true&fields=token,status,stdout,stderr,compile_output,time,memory`,
       { headers: headers() },
     );
     if (!poll.ok) throw new HttpError(502, `Judge0 status check failed (${poll.status}).`);

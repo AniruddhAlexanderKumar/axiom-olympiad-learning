@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { config } from './env.js';
 import { errorHandler } from './http.js';
 import { authRouter } from './routes/auth.js';
@@ -6,10 +6,13 @@ import { competeRouter } from './routes/compete.js';
 import { contestsRouter } from './routes/contests.js';
 import { learnRouter } from './routes/learn.js';
 import { meRouter } from './routes/me.js';
+import { mountWeb, resolveWebDir } from './web.js';
 
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
+  // Render terminates TLS in front of the service.
+  app.set('trust proxy', 1);
   app.use(express.json({ limit: '256kb' }));
 
   app.use((req, res, next) => {
@@ -32,15 +35,31 @@ export function createApp() {
     next();
   });
 
-  app.get('/health', (_req, res) => {
-    res.json({ ok: true, judge0: Boolean(config.judge0.url) });
+  const webDir = resolveWebDir();
+  const health = (_req: express.Request, res: express.Response) => {
+    res.json({
+      ok: true,
+      database: config.databaseUrl ? 'postgres' : 'pglite',
+      judge0: Boolean(config.judge0.url),
+      web: Boolean(webDir),
+    });
+  };
+  app.get('/health', health);
+  app.get('/healthz', health);
+
+  const api = Router();
+  api.use('/auth', authRouter);
+  api.use(learnRouter);
+  api.use(competeRouter);
+  api.use(contestsRouter);
+  api.use(meRouter);
+  app.use('/api', api);
+
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Not found.' });
   });
 
-  app.use('/auth', authRouter);
-  app.use(learnRouter);
-  app.use(competeRouter);
-  app.use(contestsRouter);
-  app.use(meRouter);
+  mountWeb(app, webDir);
 
   app.use((_req, res) => {
     res.status(404).json({ error: 'Not found.' });

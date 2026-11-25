@@ -6,7 +6,6 @@ import {
   issueToken,
   loadUser,
   requireAuth,
-  verifyGoogleIdToken,
   verifyPassword,
 } from '../auth.js';
 import { getContent } from '../content.js';
@@ -59,33 +58,6 @@ authRouter.post(
     if (!user || !verifyPassword(password, user.password_hash)) {
       throw new HttpError(401, 'That email and password do not match.');
     }
-    await recordActivity(user.id);
-    res.json(await sessionPayload(user.id));
-  }),
-);
-
-authRouter.post(
-  '/google',
-  wrap(async (req, res) => {
-    const idToken = String(req.body?.idToken ?? '');
-    if (!idToken) throw new HttpError(400, 'Missing Google credential.');
-    const info = await verifyGoogleIdToken(idToken);
-    const email = (info.email as string).toLowerCase();
-
-    let user = await queryOne<{ id: string }>('SELECT id FROM users WHERE google_id = $1 OR email = $2', [
-      info.sub,
-      email,
-    ]);
-    if (!user) {
-      user = await queryOne<{ id: string }>(
-        `INSERT INTO users (email, google_id, display_name) VALUES ($1, $2, $3) RETURNING id`,
-        [email, info.sub, (info.name ?? email.split('@')[0]).slice(0, 40)],
-      );
-    } else {
-      await query('UPDATE users SET google_id = COALESCE(google_id, $2) WHERE id = $1', [user.id, info.sub]);
-    }
-    if (!user) throw new HttpError(500, 'Could not sign in with Google.');
-    await getStats(user.id);
     await recordActivity(user.id);
     res.json(await sessionPayload(user.id));
   }),

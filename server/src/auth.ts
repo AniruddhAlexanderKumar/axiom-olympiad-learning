@@ -99,28 +99,3 @@ export function currentUser(req: Express.Request): SessionUser {
   if (!user) throw new HttpError(401, 'Sign in to continue.');
   return user;
 }
-
-interface GoogleTokenInfo {
-  aud?: string;
-  sub?: string;
-  email?: string;
-  email_verified?: string | boolean;
-  name?: string;
-}
-
-export async function verifyGoogleIdToken(idToken: string): Promise<GoogleTokenInfo> {
-  if (!config.googleClientId) {
-    throw new HttpError(503, 'Google sign-in is not configured on this server. Set GOOGLE_CLIENT_ID.');
-  }
-  const response = await fetch(
-    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
-  );
-  if (!response.ok) throw new HttpError(401, 'Google rejected that sign-in. Try again.');
-  const info = (await response.json()) as GoogleTokenInfo;
-  if (info.aud !== config.googleClientId) throw new HttpError(401, 'Google client mismatch.');
-  if (info.email_verified === false || info.email_verified === 'false') {
-    throw new HttpError(401, 'Google account email is not verified.');
-  }
-  if (!info.email || !info.sub) throw new HttpError(401, 'Google did not return an email.');
-  return info;
-}

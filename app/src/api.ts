@@ -1,9 +1,26 @@
 import { Platform } from 'react-native';
 
-const fallbackHost =
+declare const __DEV__: boolean | undefined;
+
+const devFallback =
   Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
 
-export const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? fallbackHost).replace(/\/$/, '');
+/**
+ * EXPO_PUBLIC_API_URL may be an absolute origin (http://localhost:4000) or "/"
+ * for same-origin deployments, where the API also serves the web client.
+ * A production web build with no configured URL talks to its own origin.
+ */
+const configured = process.env.EXPO_PUBLIC_API_URL?.trim();
+const isProductionWeb = Platform.OS === 'web' && typeof __DEV__ !== 'undefined' && !__DEV__;
+
+export const API_URL = (configured || (isProductionWeb ? '' : devFallback)).replace(/\/+$/, '');
+export const API_BASE = `${API_URL}/api`;
+
+export function apiOriginLabel(): string {
+  if (API_URL) return API_URL;
+  if (Platform.OS === 'web' && typeof window !== 'undefined') return window.location.origin;
+  return 'the API';
+}
 
 let token: string | null = null;
 
@@ -31,9 +48,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { ...init, headers });
+    response = await fetch(`${API_BASE}${path}`, { ...init, headers });
   } catch {
-    throw new ApiError(0, `Cannot reach the API at ${API_URL}. Is the server running?`);
+    throw new ApiError(0, `Cannot reach the API at ${apiOriginLabel()}. Is the server running?`);
   }
 
   const text = await response.text();

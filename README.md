@@ -13,7 +13,11 @@ Built with **Expo (React Native)** for iOS, Android and web, an **Express** API,
 app/        Expo client (expo-router, React Native, TypeScript)
 server/     Express API, PostgreSQL migrations, Judge0 client, tests
 content/    Lesson, problem, contest and placement content as JSON
+render.yaml Render blueprint: web service + PostgreSQL
 ```
+
+The API serves everything under `/api`, so the exported web client and the API
+can run on one origin (`/health` stays at the root for platform health checks).
 
 ## Getting started
 
@@ -27,29 +31,72 @@ npm run dev:api
 npm run dev:app
 ```
 
-Without further configuration the API runs on an embedded **PGlite** database in `.data/pglite`, so the app works immediately. To use real PostgreSQL:
+Without further configuration the API runs on an embedded **PGlite** database in
+`server/.data/pglite`, so the app works immediately. To use real PostgreSQL:
 
 ```bash
-cp .env.example .env         # set DATABASE_URL, JWT_SECRET, JUDGE0_URL, GOOGLE_CLIENT_ID
+cp .env.example .env         # set DATABASE_URL, JWT_SECRET, JUDGE0_URL
 docker compose up postgres
 ```
 
-`app/.env` (or shell env) needs `EXPO_PUBLIC_API_URL`; on a physical device point it at your computer's LAN address.
+`server/src/env.ts` reads `.env` from the repo root or `server/`, and variables
+already in the environment always win. For the Expo app, `EXPO_PUBLIC_API_URL`
+defaults to `http://localhost:4000` in development; on a physical device point it
+at your computer's LAN address.
+
+### Single-origin build
+
+```bash
+npm run build                # expo export --platform web -> app/dist
+npm start                    # API + web client on http://localhost:4000
+```
+
+The API serves `app/dist`, with a SPA fallback for client routes and a JSON 404
+for unknown `/api` calls. Build the web client with `EXPO_PUBLIC_API_URL=/` (or
+leave it unset in a production build) so the bundle calls its own origin.
+
+## Deploying to Render
+
+`render.yaml` is a complete blueprint: one Node web service plus a Render
+Postgres database. In the Render dashboard choose **New → Blueprint**, point it
+at this repository, and apply. The blueprint:
+
+- runs `npm run render:build`, which installs both packages and exports the web
+  client into `app/dist`;
+- starts the API with `npm run render:start` on the `PORT` Render provides,
+  bound to `0.0.0.0`;
+- injects `DATABASE_URL` from the managed database and generates `JWT_SECRET`;
+- health-checks `/health`;
+- sets `EXPO_PUBLIC_API_URL=/` so the browser bundle uses the same origin.
+
+Postgres TLS is detected automatically: Render's internal hostname needs none,
+its external URL does. Set `DATABASE_SSL=true|false` to override, and
+`PUBLIC_URL` if the service is served from a custom domain (Render otherwise
+uses `RENDER_EXTERNAL_URL`).
+
+The service fails fast at boot if `DATABASE_URL` is missing on Render, because
+Render's filesystem is ephemeral and the embedded PGlite database would be lost
+on every deploy.
 
 ### Code execution (Judge0)
 
-Student code is **never** executed on the API server. Start Judge0 and point the API at it:
+Student code is **never** executed on the API server, and Render cannot run the
+Docker containers in `docker-compose.yml`. Point `JUDGE0_URL` at either:
+
+- the **RapidAPI-hosted** Judge0 (also set `JUDGE0_KEY` and `JUDGE0_HOST`), or
+- a self-hosted Judge0 instance reachable over HTTPS (Run it on a machine that
+  allows privileged containers).
+
+Locally, self-host it with:
 
 ```bash
 docker compose up judge0 judge0-db judge0-redis judge0-worker
 # JUDGE0_URL=http://localhost:2358
 ```
 
-Until `JUDGE0_URL` is set, tappable question types and all lesson flows work normally, and code submissions return a clear `503` explaining that execution is not configured.
-
-### Google sign-in
-
-Set `GOOGLE_CLIENT_ID` on the server and `EXPO_PUBLIC_GOOGLE_CLIENT_ID` for the app. The client uses `expo-auth-session` to obtain an ID token; the server verifies it against Google's `tokeninfo` endpoint and checks the audience. Email + password works without any Google configuration.
+Until `JUDGE0_URL` is set, tappable question types and all lesson flows work
+normally, and code submissions return a clear `503` explaining that execution is
+not configured. `/health` reports the same state as `judge0`.
 
 ## Question types
 
@@ -95,7 +142,9 @@ All lessons and problems are original sample material written for this app. They
 
 ## API surface
 
-`POST /auth/register|login|google`, `GET /auth/me`, `GET/POST /auth/onboarding`, `GET/POST /auth/onboarding/placement`, `GET /learn`, `POST /learn/lessons/:id/start`, `POST /lesson-sessions/:id/answer`, `GET/POST /review`, `GET /compete`, `GET /compete/topics/:id`, `POST /compete/topics/:id/check`, `GET /problems/:id`, `POST /problems/:id/submit`, `GET /problems/:id/editorial`, `GET/POST /contests`, `POST /contests/:id/start|submit|finish`, `GET/PATCH /me`, `GET /me/leagues|badges`, `GET/POST /friend-challenges`.
+All routes are under `/api`:
+
+`POST /auth/register|login`, `GET /auth/me`, `GET/POST /auth/onboarding`, `GET/POST /auth/onboarding/placement`, `GET /learn`, `POST /learn/lessons/:id/start`, `POST /lesson-sessions/:id/answer`, `GET/POST /review`, `GET /compete`, `GET /compete/topics/:id`, `POST /compete/topics/:id/check`, `GET /problems/:id`, `POST /problems/:id/submit`, `GET /problems/:id/editorial`, `GET/POST /contests`, `POST /contests/:id/start|submit|finish`, `GET/PATCH /me`, `GET /me/leagues|badges`, `GET/POST /friend-challenges`. Health: `GET /health`.
 
 ## Tests and checks
 
@@ -110,4 +159,4 @@ npm test             # API tests against PGlite (auth, lessons, hearts, review, 
 - Code editor syntax highlighting is a monospace editor with line numbers, auto-indent and a symbol bar, not a full tokenised highlighter.
 - Drag and drop is implemented as tap-to-place (order, match, word bank) so it works with a keyboard and screen reader.
 - Sound effects are not bundled; feedback is visual plus haptics.
-- The tutor is not part of this product brief; the app ships lessons, checks, problems and contests.
+- Accounts use email + password only; no third-party sign-in.

@@ -10,9 +10,18 @@ export interface Queryable {
 }
 
 let store: Queryable | null = null;
+let closer: (() => Promise<void>) | null = null;
 
 async function createPgStore(): Promise<Queryable> {
-  const pool = new pg.Pool({ connectionString: config.databaseUrl, max: 10 });
+  const pool = new pg.Pool({
+    connectionString: config.databaseUrl,
+    max: 10,
+    connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 30_000,
+    ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
+  });
+  pool.on('error', (error) => console.error('[db] idle client error:', error.message));
+  closer = () => pool.end();
   return {
     async query<T>(text: string, params?: unknown[]) {
       const result = await pool.query(text, params as unknown[]);
@@ -25,6 +34,7 @@ async function createEmbeddedStore(): Promise<Queryable> {
   const inMemory = process.env.NODE_ENV === 'test';
   if (!inMemory) ensureDataDir();
   const lite = await PGlite.create(inMemory ? undefined : '.data/pglite');
+  closer = () => lite.close();
   return {
     async query<T>(text: string, params?: unknown[]) {
       const result = await lite.query<T>(text, params as unknown[]);
@@ -38,6 +48,13 @@ export async function db(): Promise<Queryable> {
     store = config.databaseUrl ? await createPgStore() : await createEmbeddedStore();
   }
   return store;
+}
+
+export async function closeDb(): Promise<void> {
+  const close = closer;
+  closer = null;
+  store = null;
+  if (close) await close();
 }
 
 export async function query<T = Record<string, unknown>>(text: string, params?: unknown[]): Promise<T[]> {

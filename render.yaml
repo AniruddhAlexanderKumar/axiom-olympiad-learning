@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: zumi
+    runtime: node
+    plan: free
+    region: oregon
+    # Installs both packages, then exports the Expo web client into app/dist.
+    # The API serves that build on the same origin, so there is no CORS setup
+    # and no API URL to bake into the bundle.
+    buildCommand: npm run render:build
+    startCommand: npm run render:start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.3
+      - key: NODE_ENV
+        value: production
+      - key: CI
+        value: "true"
+      - key: EXPO_PUBLIC_API_URL
+        value: /
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: zumi-db
+          property: connectionString
+      # Judge0 is not hosted here: point these at a self-hosted instance or the
+      # RapidAPI-hosted flavour. Until then code questions return a clear 503
+      # and every other question type keeps working.
+      - key: JUDGE0_URL
+        sync: false
+      - key: JUDGE0_KEY
+        sync: false
+      - key: JUDGE0_HOST
+        sync: false
+
+databases:
+  - name: zumi-db
+    databaseName: zumi
+    user: zumi
+    plan: free
+    region: oregon

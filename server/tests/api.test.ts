@@ -9,7 +9,6 @@ process.env.JWT_SECRET = 'test-secret';
 process.env.DATABASE_URL = '';
 process.env.CONTENT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../content');
 process.env.JUDGE0_URL = '';
-process.env.GOOGLE_CLIENT_ID = '';
 
 let server: Server;
 let base = '';
@@ -21,7 +20,7 @@ async function call<T = any>(
 ): Promise<{ status: number; body: T }> {
   const headers: Record<string, string> = { 'content-type': 'application/json' };
   if (options.auth !== false && token) headers.authorization = `Bearer ${token}`;
-  const response = await fetch(`${base}${path}`, {
+  const response = await fetch(`${base}/api${path}`, {
     method: options.method ?? 'GET',
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -47,6 +46,16 @@ before(async () => {
 
 after(async () => {
   await new Promise<void>((done) => server.close(() => done()));
+});
+
+describe('server', () => {
+  it('reports health without a session', async () => {
+    const response = await fetch(`${base}/health`);
+    assert.equal(response.status, 200);
+    const body = (await response.json()) as { ok: boolean; database: string };
+    assert.equal(body.ok, true);
+    assert.equal(body.database, 'pglite');
+  });
 });
 
 describe('auth', () => {

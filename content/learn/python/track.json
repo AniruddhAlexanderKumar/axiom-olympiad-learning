@@ -1,0 +1,18 @@
+{
+  "id": "python",
+  "title": "Python",
+  "language": "python",
+  "description": "Start from your first print() and finish writing classes.",
+  "available": true,
+  "skills": [
+    { "id": "printing", "title": "Printing and output", "summary": "Make the computer say things.", "lessons": ["printing-1"] },
+    { "id": "variables", "title": "Variables and data types", "summary": "Store numbers, text and true/false values.", "lessons": ["variables-1"] },
+    { "id": "conditionals", "title": "Conditionals", "summary": "Let your program make decisions.", "lessons": ["conditionals-1"] },
+    { "id": "loops", "title": "Loops", "summary": "Repeat work without repeating yourself.", "lessons": ["loops-1"] },
+    { "id": "functions", "title": "Functions", "summary": "Bundle logic into reusable pieces.", "lessons": ["functions-1"] },
+    { "id": "lists", "title": "Lists", "summary": "Keep many values in one place.", "lessons": ["lists-1"] },
+    { "id": "strings", "title": "Strings", "summary": "Slice, join and change text.", "lessons": ["strings-1"] },
+    { "id": "dicts", "title": "Dictionaries", "summary": "Look values up by key.", "lessons": ["dicts-1"] },
+    { "id": "classes", "title": "Classes and objects", "summary": "Model things that have state and behaviour.", "lessons": ["classes-1"] }
+  ]
+}

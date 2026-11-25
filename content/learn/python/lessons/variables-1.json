@@ -1,0 +1,74 @@
+{
+  "id": "variables-1",
+  "title": "Boxes with labels",
+  "skillId": "variables",
+  "language": "python",
+  "xp": 30,
+  "intro": {
+    "title": "A variable is a name for a value",
+    "body": "Assign with =. Names can be reused, and the newest value wins. Python's basic types are int, float, str and bool.",
+    "sample": "score = 10\nscore = score + 5\nprint(score)  # 15"
+  },
+  "challenges": [
+    {
+      "id": "var-1-mcq",
+      "type": "mcq",
+      "prompt": "What does this print?",
+      "code": "x = 5\ny = x + 2\nprint(y)",
+      "options": [
+        { "id": "a", "text": "5" },
+        { "id": "b", "text": "7" },
+        { "id": "c", "text": "x + 2" },
+        { "id": "d", "text": "An error" }
+      ],
+      "answer": "b",
+      "explanation": "y stores 5 + 2, which is 7."
+    },
+    {
+      "id": "var-2-type",
+      "type": "fill-blank",
+      "prompt": "Type the variable name that stores the number 7.",
+      "template": "{{0}} = 7",
+      "mode": "type",
+      "blanks": [{ "answers": ["points"] }],
+      "explanation": "Any valid name works for the machine, but this exercise asks for points."
+    },
+    {
+      "id": "var-3-tf",
+      "type": "true-false",
+      "prompt": "Check the claim about this code.",
+      "statement": "After these lines run, count is 4.",
+      "code": "count = 1\ncount = count + 3",
+      "answer": true,
+      "explanation": "count is replaced by its old value plus three."
+    },
+    {
+      "id": "var-4-match",
+      "type": "match",
+      "prompt": "Match each value with its type.",
+      "pairs": [
+        { "left": "42", "right": "int" },
+        { "left": "3.5", "right": "float" },
+        { "left": "\"hello\"", "right": "str" },
+        { "left": "True", "right": "bool" }
+      ],
+      "explanation": "Whole numbers are int, decimals are float, quoted text is str, and True/False are bool."
+    },
+    {
+      "id": "var-5-bug",
+      "type": "bug",
+      "prompt": "Tap the line that breaks Python's rules, then choose the fix.",
+      "lines": [
+        { "id": "l1", "text": "name = Ada" },
+        { "id": "l2", "text": "print(name)" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "name = \"Ada\"" },
+        { "id": "f2", "text": "name == \"Ada\"" },
+        { "id": "f3", "text": "String name = \"Ada\"" }
+      ],
+      "answer": { "lineId": "l1", "fixId": "f1" },
+      "explanation": "Text values need quotes; without them Python looks for a variable called Ada."
+    }
+  ]
+}

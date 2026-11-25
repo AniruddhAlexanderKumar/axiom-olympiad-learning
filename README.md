@@ -1,54 +1,113 @@
-# Axiom Olympiad Learning
+# Axiom Code
 
-A functioning, mastery-first learning app for competition mathematics. AMC 10 is the initial student journey; the data model and admin studio support separate competitions, syllabi, question banks, and assessment blueprints. The included lessons and problems are original sample material, not official AMC syllabus or past-paper content.
+A mobile-first, Duolingo-style app that teaches coding through short daily lessons and trains students for programming contests. Two modes share one progress system:
 
-## Run locally
+- **Learn** — Python from zero, nine skills from `print()` to classes.
+- **Compete** — contest preparation (USACO Bronze/Silver/Gold, ACSL Junior) with contest-style grading, editorials and timed mock contests.
 
-Requirements: Node.js 22.13.1 or newer and npm.
+Built with **Expo (React Native)** for iOS, Android and web, an **Express** API, **PostgreSQL**, and **Judge0** for sandboxed code execution.
 
-```sh
-npm install
-npm run dev
+## Layout
+
+```
+app/        Expo client (expo-router, React Native, TypeScript)
+server/     Express API, PostgreSQL migrations, Judge0 client, tests
+content/    Lesson, problem, contest and placement content as JSON
 ```
 
-The local development server uses SQLite at `data/axiom.sqlite` by default, applies the SQL migrations, and seeds the sample curriculum on startup. Set `DATABASE_PATH` to use another SQLite file. The web app runs on port 5173 and proxies `/api` to the API on port 3001. Confirm the API is reachable at `/api/health`; it returns JSON with `ok: true`.
+## Getting started
 
-Selecting **Start my journey** creates a private guest study space automatically; progress stays with that browser/device. Guest learners can convert that space into a real account (keeping all progress) from **Progress → Save this study space**, and returning learners can sign in from the welcome screen. A learner can permanently delete their study space from the same page. `/privacy` and `/terms` are public pages and are linked from the welcome screen and the app footer.
+```bash
+npm run install:all          # root, server and app dependencies
 
-In production, run the Node server so it can serve both the built frontend and `/api` routes. Static-only hosting cannot start guest journeys or save progress; configure the API and frontend behind the same origin.
+# terminal 1 — API on :4000
+npm run dev:api
 
-```sh
-npm test
-npm run typecheck
-npm run build
+# terminal 2 — Expo (press w for web, or scan the QR code)
+npm run dev:app
 ```
 
-## PostgreSQL deployment
+Without further configuration the API runs on an embedded **PGlite** database in `.data/pglite`, so the app works immediately. To use real PostgreSQL:
 
-Production requires PostgreSQL: the Node server exits at startup if `NODE_ENV=production` and none of `DATABASE_URL`, `POSTGRES_URL`, or `POSTGRES_PRISMA_URL` is set. The PostgreSQL schema and seed data are initialized automatically. Build the frontend with `npm run build` before `npm start`; the Node server then serves the built app and API from one origin.
-
-Vercel deployments use `api/[...path].ts` as the `/api/*` serverless function. `vercel.json` rewrites only known client-side pages to `index.html`; API requests are deliberately left untouched so POST requests reach the function. Add a PostgreSQL connection string as `DATABASE_URL` (or a Vercel `POSTGRES_URL`) in the Vercel project’s Preview and Production environment settings; Vercel does not run the long-lived local Express server.
-
-```sh
-DATABASE_URL='postgres://user:password@host:5432/axiom' \
-ADMIN_EMAIL='admin@example.com' \
-ADMIN_PASSWORD='use-a-long-unique-password' \
-NODE_ENV=production npm start
+```bash
+cp .env.example .env         # set DATABASE_URL, JWT_SECRET, JUDGE0_URL, GOOGLE_CLIENT_ID
+docker compose up postgres
 ```
 
-`ADMIN_EMAIL` and `ADMIN_PASSWORD` are optional; when both are set and the password is at least 12 characters, startup provisions that account with administrator access. Configure TLS as required by your PostgreSQL provider in the connection string/environment. Keep database credentials and admin secrets out of source control. Copy `.env.example` to `.env` to see every supported variable.
+`app/.env` (or shell env) needs `EXPO_PUBLIC_API_URL`; on a physical device point it at your computer's LAN address.
 
-`PORT` falls back to `3001` when it is unset, empty, or not a usable port number, so an empty `PORT` in a shell cannot silently bind an ephemeral port. API responses are sent with `Cache-Control: no-store` plus a strict Content-Security-Policy and related hardening headers.
+### Code execution (Judge0)
 
-SQLite is intended for local development and automated tests. PostgreSQL is the required production database.
+Student code is **never** executed on the API server. Start Judge0 and point the API at it:
 
-## What is implemented
+```bash
+docker compose up judge0 judge0-db judge0-redis judge0-worker
+# JUDGE0_URL=http://localhost:2358
+```
 
-- Five persistent student sections: a Home dashboard (next lesson, daily quests, streak, XP, weak topic, weekly activity), the Journey path, a Practice arena (topic, mixed, timed, review and mock sets with resumed sessions and detailed reports), a context-aware AI Tutor, and a Profile with mastery analytics, calendar, achievements, league standings and settings.
-- AMC 10 journey with Number Theory, Algebra, Geometry, and Combinatorics; structured lessons, prerequisites, mastery gates, and interactive answer types.
-- Server-validated original practice questions, progressive hints, explanations after a correct answer or an additional attempt, spaced review scheduling, timed sets, mini assessments, and persisted session resume.
-- XP, levels, achievements, daily quests, streaks, activity history, topic mastery estimates, and opt-in leaderboard data.
-- A context-aware study tutor that responds with progressive hints and study recommendations. It is heuristic/adaptive application behavior; no external AI service or model API is called.
-- Administrator content studio for competitions, syllabi, lessons, prerequisite graphs, questions, rubrics, proof-review queue, and assessment blueprints. New content is created unpublished and changes are audit-logged.
+Until `JUDGE0_URL` is set, tappable question types and all lesson flows work normally, and code submissions return a clear `503` explaining that execution is not configured.
 
-For rubric-based proof questions, student work is stored as pending and never auto-graded or shown a hidden answer key. An administrator must accept it or request revision with feedback before it affects mastery or earns first-solve XP.
+### Google sign-in
+
+Set `GOOGLE_CLIENT_ID` on the server and `EXPO_PUBLIC_GOOGLE_CLIENT_ID` for the app. The client uses `expo-auth-session` to obtain an ID token; the server verifies it against Google's `tokeninfo` endpoint and checks the audience. Email + password works without any Google configuration.
+
+## Question types
+
+Every lesson mixes tappable formats with a free-response challenge, ordered from easier to harder:
+
+| Type | File shape | Grading |
+| --- | --- | --- |
+| `mcq` | `options`, `answer` | selected option id |
+| `true-false` | `statement`, `answer` | boolean |
+| `fill-blank` | `template` with `{{0}}`, `blanks[].answers` | normalised text |
+| `word-bank` | same, `mode: "wordbank"`, `bank` | chip selection |
+| `order` | `lines`, `answer` (line ids) | exact sequence |
+| `match` | `pairs` | every pair |
+| `bug` | `lines`, `fixes`, `answer {lineId, fixId}` | line + fix |
+| `frq` | `starterCode`, hidden `tests` | Judge0 per test case |
+
+Answers, hidden tests and explanations live only on the server: `server/src/serialize.ts` strips them before a question is sent to the client, and `server/src/grade.ts` does all grading.
+
+## Content
+
+Content is JSON, loaded at boot by `server/src/content.ts`, so writers can add material without touching code:
+
+```
+content/learn/python/track.json          skill tree (9 skills, ordered lessons)
+content/learn/python/lessons/*.json      lessons with 4-6 challenges each
+content/compete/usaco.json               tiers, topics, 9 problems with hidden tests
+content/compete/acsl.json                ACSL Junior track
+content/contests.json                    weekly mock + warm-up sprint
+content/placement.json                   onboarding placement quiz
+```
+
+All lessons and problems are original sample material written for this app. They are **not** official AMC/USACO/ACSL syllabus or past-paper content, and the mock contest is a practice simulation, not a real contest.
+
+## Gamification and progression
+
+- **XP and levels** per challenge, with a perfect-lesson bonus and first-solve problem points (`server/src/progress.ts`).
+- **Hearts** (5 max): a wrong lesson answer costs one, they refill every 25 minutes, and finishing a review session grants one. Practice and review never cost hearts.
+- **Streaks** with a 28-day heatmap and streak freezes earned every seven days; a freeze covers a missed day automatically.
+- **Spaced repetition**: missed challenges return after two days, in both modes, with the same question re-queued at the end of the current lesson until answered correctly.
+- **Unlocks**: finishing Learn skills opens Compete tiers (`unlockSkills` in the track JSON — loops, lists and strings open USACO Bronze).
+- **Weekly leagues** grouped by tier, ranked by XP earned this week, with promotion for the top three and demotion for the bottom four when the week resets.
+- **Badges**, **friend races** (share a code, both players submit the same problem) and **mock contests** scored per test case.
+
+## API surface
+
+`POST /auth/register|login|google`, `GET /auth/me`, `GET/POST /auth/onboarding`, `GET/POST /auth/onboarding/placement`, `GET /learn`, `POST /learn/lessons/:id/start`, `POST /lesson-sessions/:id/answer`, `GET/POST /review`, `GET /compete`, `GET /compete/topics/:id`, `POST /compete/topics/:id/check`, `GET /problems/:id`, `POST /problems/:id/submit`, `GET /problems/:id/editorial`, `GET/POST /contests`, `POST /contests/:id/start|submit|finish`, `GET/PATCH /me`, `GET /me/leagues|badges`, `GET/POST /friend-challenges`.
+
+## Tests and checks
+
+```bash
+npm run typecheck    # server + app TypeScript
+npm test             # API tests against PGlite (auth, lessons, hearts, review, locks, Judge0 offline)
+```
+
+## Known limits
+
+- Python is the only Learn track with content; Java, JavaScript and C++ appear as "soon" tracks, though the model, editor language bar and Judge0 language ids already support them.
+- Code editor syntax highlighting is a monospace editor with line numbers, auto-indent and a symbol bar, not a full tokenised highlighter.
+- Drag and drop is implemented as tap-to-place (order, match, word bank) so it works with a keyboard and screen reader.
+- Sound effects are not bundled; feedback is visual plus haptics.
+- The tutor is not part of this product brief; the app ships lessons, checks, problems and contests.

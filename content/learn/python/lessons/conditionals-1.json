@@ -1,0 +1,76 @@
+{
+  "id": "conditionals-1",
+  "title": "Decisions, decisions",
+  "skillId": "conditionals",
+  "language": "python",
+  "xp": 35,
+  "intro": {
+    "title": "if runs code only when a test is true",
+    "body": "A condition ends with a colon and the body is indented. Use elif for another test and else for everything left over.",
+    "sample": "score = 72\nif score >= 90:\n    print(\"A\")\nelif score >= 70:\n    print(\"B\")\nelse:\n    print(\"Keep going\")"
+  },
+  "challenges": [
+    {
+      "id": "cond-1-mcq",
+      "type": "mcq",
+      "prompt": "What is printed?",
+      "code": "n = 4\nif n % 2 == 0:\n    print(\"even\")\nelse:\n    print(\"odd\")",
+      "options": [
+        { "id": "a", "text": "even" },
+        { "id": "b", "text": "odd" },
+        { "id": "c", "text": "evenodd" },
+        { "id": "d", "text": "Nothing" }
+      ],
+      "answer": "a",
+      "explanation": "4 leaves remainder 0, so the if branch runs."
+    },
+    {
+      "id": "cond-2-type",
+      "type": "fill-blank",
+      "prompt": "Type the single character that must follow the condition.",
+      "template": "if score >= 90{{0}}\n    print(\"great\")",
+      "mode": "type",
+      "blanks": [{ "answers": [":"] }],
+      "explanation": "Every if, elif, else, for and def line ends with a colon."
+    },
+    {
+      "id": "cond-3-tf",
+      "type": "true-false",
+      "prompt": "Check this claim.",
+      "statement": "If the if condition is false and there is no else, the program continues after the block.",
+      "answer": true,
+      "explanation": "The skipped block simply does not run; nothing crashes."
+    },
+    {
+      "id": "cond-4-bug",
+      "type": "bug",
+      "prompt": "Find the line that will raise an error, then choose the fix.",
+      "lines": [
+        { "id": "l1", "text": "age = 15" },
+        { "id": "l2", "text": "if age >= 13:" },
+        { "id": "l3", "text": "print(\"teen\")" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "    print(\"teen\")" },
+        { "id": "f2", "text": "print(\"teen\"):" },
+        { "id": "f3", "text": "{ print(\"teen\") }" }
+      ],
+      "answer": { "lineId": "l3", "fixId": "f1" },
+      "explanation": "The body of an if must be indented four spaces."
+    },
+    {
+      "id": "cond-5-order",
+      "type": "order",
+      "prompt": "Arrange the lines into a working grade checker.",
+      "lines": [
+        { "id": "a", "text": "    print(\"B\")" },
+        { "id": "b", "text": "if score >= 90:" },
+        { "id": "c", "text": "    print(\"A\")" },
+        { "id": "d", "text": "else:" },
+        { "id": "e", "text": "score = 85" }
+      ],
+      "answer": ["e", "b", "c", "d", "a"],
+      "explanation": "Set the value, test the high case, then fall back to the else branch."
+    }
+  ]
+}

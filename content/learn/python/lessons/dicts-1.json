@@ -1,0 +1,77 @@
+{
+  "id": "dicts-1",
+  "title": "Look it up",
+  "skillId": "dicts",
+  "language": "python",
+  "xp": 45,
+  "intro": {
+    "title": "A dictionary maps keys to values",
+    "body": "Square brackets read and write a key. .get(key, default) avoids a KeyError when the key is missing, which makes dictionaries perfect for counting.",
+    "sample": "ages = {\"ada\": 36}\nages[\"alan\"] = 41\nprint(ages[\"ada\"], ages.get(\"grace\", 0))"
+  },
+  "challenges": [
+    {
+      "id": "dict-1-mcq",
+      "type": "mcq",
+      "prompt": "What is printed?",
+      "code": "stock = {\"apple\": 3}\nstock[\"apple\"] += 2\nprint(stock[\"apple\"])",
+      "options": [
+        { "id": "a", "text": "3" },
+        { "id": "b", "text": "5" },
+        { "id": "c", "text": "apple" },
+        { "id": "d", "text": "An error" }
+      ],
+      "answer": "b",
+      "explanation": "The value 3 is incremented by 2 and stored back under the same key."
+    },
+    {
+      "id": "dict-2-bank",
+      "type": "word-bank",
+      "prompt": "Read the score for \"ada\" without crashing if the key is missing.",
+      "template": "scores = {\"ada\": 9}\nprint(scores.{{0}}(\"bo\", 0))",
+      "mode": "wordbank",
+      "bank": ["get", "find", "read", "value"],
+      "blanks": [{ "answers": ["get"] }],
+      "explanation": "dict.get(key, default) returns the default instead of raising KeyError."
+    },
+    {
+      "id": "dict-3-tf",
+      "type": "true-false",
+      "prompt": "Check the claim.",
+      "statement": "Two entries in a dictionary can share the same key.",
+      "answer": false,
+      "explanation": "Keys are unique; assigning an existing key replaces its value."
+    },
+    {
+      "id": "dict-4-bug",
+      "type": "bug",
+      "prompt": "This crashes when the word is new. Tap the line and pick the fix.",
+      "lines": [
+        { "id": "l1", "text": "counts = {}" },
+        { "id": "l2", "text": "for word in [\"a\", \"b\", \"a\"]:" },
+        { "id": "l3", "text": "    counts[word] = counts[word] + 1" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "    counts[word] = counts.get(word, 0) + 1" },
+        { "id": "f2", "text": "    counts[word] = 1" },
+        { "id": "f3", "text": "    counts.append(word)" }
+      ],
+      "answer": { "lineId": "l3", "fixId": "f1" },
+      "explanation": "counts[word] does not exist yet on the first sighting, so get(word, 0) supplies a starting count."
+    },
+    {
+      "id": "dict-5-frq",
+      "type": "frq",
+      "prompt": "Read a word and print how many different letters it contains.",
+      "starterCode": {
+        "python": "word = input().strip()\n# print the number of distinct letters\n"
+      },
+      "tests": [
+        { "stdin": "banana\n", "expected": "3" },
+        { "stdin": "abc\n", "expected": "3" },
+        { "stdin": "aaaa\n", "expected": "1" }
+      ],
+      "explanation": "Set or dictionary keys both collapse duplicates; len(set(word)) is the shortest answer."
+    }
+  ]
+}

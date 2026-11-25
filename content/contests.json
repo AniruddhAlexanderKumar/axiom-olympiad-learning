@@ -1,0 +1,20 @@
+{
+  "contests": [
+    {
+      "id": "weekly-bronze-01",
+      "title": "Weekly Bronze Mock 01",
+      "description": "Three Bronze problems, two hours, graded per test case like a real contest.",
+      "durationMinutes": 120,
+      "problemIds": ["usaco-robot-path", "usaco-middle-value", "usaco-range-sums"],
+      "kind": "weekly"
+    },
+    {
+      "id": "sprint-01",
+      "title": "Warm-up Sprint",
+      "description": "A 30 minute sprint on two Bronze problems to practise contest pace.",
+      "durationMinutes": 30,
+      "problemIds": ["usaco-robot-path", "usaco-middle-value"],
+      "kind": "practice"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: axiom
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      retries: 10
+
+  judge0-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0
+      POSTGRES_DB: judge0
+    volumes:
+      - judge0data:/var/lib/postgresql/data
+
+  judge0-redis:
+    image: redis:7-alpine
+
+  judge0:
+    image: judge0/judge0:1.13.1
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    ports:
+      - '2358:2358'
+    privileged: true
+    environment:
+      POSTGRES_HOST: judge0-db
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0
+      POSTGRES_DB: judge0
+      REDIS_HOST: judge0-redis
+      REDIS_PORT: 6379
+      DISABLE_AUTH: 'true'
+
+  judge0-worker:
+    image: judge0/judge0:1.13.1
+    command: ['./scripts/workers']
+    depends_on:
+      - judge0
+    privileged: true
+    environment:
+      POSTGRES_HOST: judge0-db
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0
+      POSTGRES_DB: judge0
+      REDIS_HOST: judge0-redis
+      REDIS_PORT: 6379
+
+volumes:
+  pgdata:
+  judge0data:

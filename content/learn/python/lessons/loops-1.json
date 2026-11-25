@@ -1,0 +1,78 @@
+{
+  "id": "loops-1",
+  "title": "Round and round",
+  "skillId": "loops",
+  "language": "python",
+  "xp": 40,
+  "intro": {
+    "title": "for repeats a fixed number of times, while repeats until a test fails",
+    "body": "range(n) counts 0 to n-1. Every while loop needs something inside it to eventually make the condition false.",
+    "sample": "total = 0\nfor i in range(1, 4):\n    total += i\nprint(total)  # 6"
+  },
+  "challenges": [
+    {
+      "id": "loop-1-mcq",
+      "type": "mcq",
+      "prompt": "What does this print?",
+      "code": "for i in range(3):\n    print(i)",
+      "options": [
+        { "id": "a", "text": "1 2 3" },
+        { "id": "b", "text": "0 1 2" },
+        { "id": "c", "text": "0 1 2 3" },
+        { "id": "d", "text": "3 3 3" }
+      ],
+      "answer": "b",
+      "explanation": "range(3) produces 0, 1, 2."
+    },
+    {
+      "id": "loop-2-tf",
+      "type": "true-false",
+      "prompt": "Check the claim.",
+      "statement": "This loop runs five times.",
+      "code": "for i in range(5):\n    print(i)",
+      "answer": true,
+      "explanation": "range(5) gives five values: 0 through 4."
+    },
+    {
+      "id": "loop-3-bank",
+      "type": "word-bank",
+      "prompt": "Complete the loop so it repeats exactly five times.",
+      "template": "for i in range({{0}}):\n    print(i)",
+      "mode": "wordbank",
+      "bank": ["5", "4", "6", "len"],
+      "blanks": [{ "answers": ["5"] }],
+      "explanation": "range(5) yields 0, 1, 2, 3, 4 — five iterations."
+    },
+    {
+      "id": "loop-4-bug",
+      "type": "bug",
+      "prompt": "This loop never stops. Tap the line that should change, then pick the fix.",
+      "lines": [
+        { "id": "l1", "text": "n = 0" },
+        { "id": "l2", "text": "while n < 3:" },
+        { "id": "l3", "text": "    print(n)" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "    n += 1" },
+        { "id": "f2", "text": "    break" },
+        { "id": "f3", "text": "while True:" }
+      ],
+      "answer": { "lineId": "l3", "fixId": "f1" },
+      "explanation": "n never changes, so n < 3 stays true forever. Incrementing it ends the loop."
+    },
+    {
+      "id": "loop-5-frq",
+      "type": "frq",
+      "prompt": "Read an integer n and print the sum 1 + 2 + ... + n.",
+      "starterCode": {
+        "python": "n = int(input())\n# print the sum from 1 to n\ntotal = 0\n"
+      },
+      "tests": [
+        { "stdin": "5\n", "expected": "15" },
+        { "stdin": "1\n", "expected": "1" },
+        { "stdin": "100\n", "expected": "5050" }
+      ],
+      "explanation": "A loop that adds i for each i from 1 to n gives the total; the closed form n*(n+1)/2 works too."
+    }
+  ]
+}

@@ -1,0 +1,605 @@
+{
+  "id": "usaco",
+  "title": "USACO",
+  "description": "Bronze to Gold, topic by topic, with contest-style grading on hidden tests.",
+  "available": true,
+  "tiers": [
+    {
+      "id": "bronze",
+      "title": "Bronze",
+      "description": "Simulation, sorting and prefix sums: the workhorses of Bronze.",
+      "unlockSkills": ["loops", "lists", "strings"],
+      "topics": [
+        {
+          "id": "usaco-simulation",
+          "title": "Simulation and brute force",
+          "summary": "Do exactly what the statement says, step by step.",
+          "lesson": {
+            "explanation": "Bronze problems usually describe a process. The trick is not to be clever: keep variables for the state, loop over the events in order, and update the state each time. If the constraints are small, trying every possibility is a valid solution.",
+            "workedExample": "A robot starts at x = 0. Each 'R' adds 1, each 'L' subtracts 1, and each 'S' doubles x. For commands \"RRS\": x becomes 1, then 2, then 4.",
+            "checks": [
+              {
+                "id": "sim-check-1",
+                "type": "mcq",
+                "prompt": "The statement says: track a robot's position after 1000 moves and print it. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "Loop over the moves and update the position" },
+                  { "id": "b", "text": "Dynamic programming over positions" },
+                  { "id": "c", "text": "Binary search on the final position" },
+                  { "id": "d", "text": "Sort the moves and take the middle one" }
+                ],
+                "answer": "a",
+                "explanation": "1000 steps is tiny, so direct simulation is both correct and fast."
+              },
+              {
+                "id": "sim-check-2",
+                "type": "mcq",
+                "prompt": "Time complexity check: you simulate 10^5 moves with one operation each. Does it pass a 2 second limit?",
+                "options": [
+                  { "id": "a", "text": "Yes, O(n) with n = 10^5 is far under the limit" },
+                  { "id": "b", "text": "No, 10^5 operations always time out" },
+                  { "id": "c", "text": "Only if the moves are sorted" },
+                  { "id": "d", "text": "Only with recursion" }
+                ],
+                "answer": "a",
+                "explanation": "O(n) at n = 10^5 is around a hundred thousand operations; seconds are millions."
+              }
+            ]
+          },
+          "editorial": "Keep one variable for the state and one loop over the input. Resist the urge to find a formula: simulation is usually shorter and easier to trust.",
+          "problemIds": ["usaco-robot-path"]
+        },
+        {
+          "id": "usaco-sorting",
+          "title": "Sorting",
+          "summary": "Turn a messy list into an ordered one, then read it off.",
+          "lesson": {
+            "explanation": "Many problems get easy once the data is sorted: the smallest and largest end up at the ends, duplicates become adjacent, and the median sits in the middle. Python's sort is O(n log n), which handles 10^5 values comfortably.",
+            "workedExample": "For [3, 1, 2] the sorted list is [1, 2, 3]; the median is the element at index n // 2 = 1, which is 2.",
+            "checks": [
+              {
+                "id": "sort-check-1",
+                "type": "mcq",
+                "prompt": "You must answer 20 questions about the largest value in subarrays. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "Sort the whole array once, then answer from the ordered list" },
+                  { "id": "b", "text": "Simulate every subarray from scratch" },
+                  { "id": "c", "text": "Use BFS" },
+                  { "id": "d", "text": "Binary search for the answer value" }
+                ],
+                "answer": "a",
+                "explanation": "Sorting once makes extremes and order queries cheap; re-scanning every subarray is wasted work."
+              },
+              {
+                "id": "sort-check-2",
+                "type": "mcq",
+                "prompt": "Time complexity check: sorting 10^5 numbers with an O(n log n) sort. Will it pass?",
+                "options": [
+                  { "id": "a", "text": "Yes, roughly 1.7 million comparisons" },
+                  { "id": "b", "text": "No, sorting always times out" },
+                  { "id": "c", "text": "Only with n below 100" },
+                  { "id": "d", "text": "Only in C++" }
+                ],
+                "answer": "a",
+                "explanation": "n log2 n for n = 10^5 is about 1.7 million operations."
+              }
+            ]
+          },
+          "editorial": "Sort first, then index. If you need a middle value, use sorted(values)[len(values) // 2].",
+          "problemIds": ["usaco-middle-value"]
+        },
+        {
+          "id": "usaco-prefix-sums",
+          "title": "Prefix sums",
+          "summary": "Answer range-sum questions in O(1) after O(n) setup.",
+          "lesson": {
+            "explanation": "Build an array where prefix[i] is the sum of the first i values. Then the sum from l to r is prefix[r] - prefix[l - 1]. This turns each query from O(n) into O(1).",
+            "workedExample": "values = [2, 4, 1, 7] gives prefix = [0, 2, 6, 7, 14]. The sum of values 2..3 (1-indexed) is 7 - 2 = 5.",
+            "checks": [
+              {
+                "id": "prefix-check-1",
+                "type": "mcq",
+                "prompt": "You have 10^5 numbers and 10^5 range-sum queries. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "Build prefix sums, then answer each query in O(1)" },
+                  { "id": "b", "text": "Loop over the range for every query" },
+                  { "id": "c", "text": "Sort the numbers" },
+                  { "id": "d", "text": "Use recursion with memoisation" }
+                ],
+                "answer": "a",
+                "explanation": "Rescanning ranges is O(n) per query, which becomes 10^10 operations; prefix sums remove that factor."
+              },
+              {
+                "id": "prefix-check-2",
+                "type": "mcq",
+                "prompt": "Time complexity check: 10^5 range queries answered from a prefix array.",
+                "options": [
+                  { "id": "a", "text": "Yes: 10^5 queries, each O(1)" },
+                  { "id": "b", "text": "No, prefix sums are O(n) per query" },
+                  { "id": "c", "text": "Only if the values are sorted" },
+                  { "id": "d", "text": "Only for even-length ranges" }
+                ],
+                "answer": "a",
+                "explanation": "Setup is O(n) and every query is a single subtraction."
+              }
+            ]
+          },
+          "editorial": "Build prefix with prefix[0] = 0 and prefix[i] = prefix[i-1] + value[i-1]. Then sum(l..r) = prefix[r] - prefix[l-1].",
+          "problemIds": ["usaco-range-sums"]
+        }
+      ]
+    },
+    {
+      "id": "silver",
+      "title": "Silver",
+      "description": "Two pointers, binary search on the answer, and greedy choices you can justify.",
+      "unlockSkills": ["loops", "lists", "strings", "functions"],
+      "topics": [
+        {
+          "id": "usaco-two-pointers",
+          "title": "Two pointers",
+          "summary": "Move two indices instead of restarting a scan.",
+          "lesson": {
+            "explanation": "When the data is sorted, a pair of indices can sweep the array: move the left pointer up to make the sum bigger, the right pointer down to make it smaller. Each pointer only moves forward, so the whole scan is O(n).",
+            "workedExample": "Sorted [1, 3, 4, 8] with target 11: left 1 + right 8 = 9 (too small, move left), 3 + 8 = 11 found.",
+            "checks": [
+              {
+                "id": "two-pointer-check-1",
+                "type": "mcq",
+                "prompt": "You need to know whether any two numbers in a sorted array sum to a target. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "Two pointers from both ends" },
+                  { "id": "b", "text": "Dynamic programming" },
+                  { "id": "c", "text": "Depth first search" },
+                  { "id": "d", "text": "Simulate every subset" }
+                ],
+                "answer": "a",
+                "explanation": "The sorted order lets you discard one end at a time instead of checking all pairs."
+              },
+              {
+                "id": "two-pointer-check-2",
+                "type": "mcq",
+                "prompt": "How many pointer moves does two pointers make on n elements?",
+                "options": [
+                  { "id": "a", "text": "At most n moves in total" },
+                  { "id": "b", "text": "n squared moves" },
+                  { "id": "c", "text": "log n moves" },
+                  { "id": "d", "text": "Exactly n log n moves" }
+                ],
+                "answer": "a",
+                "explanation": "Each move advances one pointer, and pointers never go backwards."
+              }
+            ]
+          },
+          "editorial": "Sort, then keep left = 0 and right = n - 1. Compare the sum with the target and move the pointer that can fix the difference.",
+          "problemIds": ["usaco-pair-target"]
+        },
+        {
+          "id": "usaco-binary-search",
+          "title": "Binary search",
+          "summary": "Halve the search space, or binary search the answer itself.",
+          "lesson": {
+            "explanation": "Binary search works whenever a yes/no condition flips once as a value grows. Instead of searching for a value in an array, you can search over possible answers: keep lo and hi, test the middle, and keep the half that still contains the first true answer.",
+            "workedExample": "Smallest x with x*x >= 17: test 5 (25 yes), 2 (4 no), 3 (9 no), 4 (16 no) — answer 5.",
+            "checks": [
+              {
+                "id": "binary-check-1",
+                "type": "mcq",
+                "prompt": "You must find the smallest x such that x*x is at least n, for n up to 10^12. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "Binary search the answer between 0 and n" },
+                  { "id": "b", "text": "Loop x from 0 to n" },
+                  { "id": "c", "text": "Sort the range 0..n" },
+                  { "id": "d", "text": "Simulate each candidate with BFS" }
+                ],
+                "answer": "a",
+                "explanation": "The condition is monotone, and binary search needs only about 40 tests for n = 10^12."
+              },
+              {
+                "id": "binary-check-2",
+                "type": "mcq",
+                "prompt": "Time complexity check: 60 binary search steps over a range of 10^12.",
+                "options": [
+                  { "id": "a", "text": "Yes: 40 checks is log2(10^12)" },
+                  { "id": "b", "text": "No, it needs 10^12 checks" },
+                  { "id": "c", "text": "Only with recursion" },
+                  { "id": "d", "text": "Only if n is even" }
+                ],
+                "answer": "a",
+                "explanation": "log2(10^12) is about 40, so the loop is tiny."
+              }
+            ]
+          },
+          "editorial": "Write a function ok(x) that returns true for every x at or above the answer. Then binary search for the first true.",
+          "problemIds": ["usaco-smallest-square"]
+        },
+        {
+          "id": "usaco-greedy",
+          "title": "Greedy algorithms",
+          "summary": "Take the locally best option and prove it is safe.",
+          "lesson": {
+            "explanation": "Greedy works when an exchange argument shows that picking the current best option never hurts. The classic case is scheduling the most non-overlapping meetings: always take the one that ends earliest.",
+            "workedExample": "Intervals (1,4), (3,5), (0,6), (5,7), (8,9): take (1,4), then (5,7), then (8,9) for three meetings.",
+            "checks": [
+              {
+                "id": "greedy-check-1",
+                "type": "mcq",
+                "prompt": "Pick the most non-overlapping meetings from a list. Which greedy rule is correct?",
+                "options": [
+                  { "id": "a", "text": "Sort by end time and take each meeting that starts after the last one ended" },
+                  { "id": "b", "text": "Take the longest meeting first" },
+                  { "id": "c", "text": "Take the first meeting listed" },
+                  { "id": "d", "text": "Take every other meeting" }
+                ],
+                "answer": "a",
+                "explanation": "Ending earliest leaves the most room for everything after it."
+              },
+              {
+                "id": "greedy-check-2",
+                "type": "mcq",
+                "prompt": "What is the cost of the greedy meeting algorithm on n intervals?",
+                "options": [
+                  { "id": "a", "text": "O(n log n) because of the sort" },
+                  { "id": "b", "text": "O(2^n)" },
+                  { "id": "c", "text": "O(n^2 log n)" },
+                  { "id": "d", "text": "O(n^3)" }
+                ],
+                "answer": "a",
+                "explanation": "One sort, then a single pass to choose meetings."
+              }
+            ]
+          },
+          "editorial": "Sort by finishing time, keep a variable for the last end time, and count each interval that starts at or after it.",
+          "problemIds": ["usaco-meetings"]
+        }
+      ]
+    },
+    {
+      "id": "gold",
+      "title": "Gold",
+      "description": "Recursion, graphs and dynamic programming.",
+      "unlockSkills": ["loops", "lists", "strings", "functions", "dicts", "classes"],
+      "topics": [
+        {
+          "id": "usaco-recursion",
+          "title": "Recursion",
+          "summary": "Solve a problem by solving a smaller copy of itself.",
+          "lesson": {
+            "explanation": "A recursive function needs a base case and a step that moves toward it. Without memoisation the same subproblem is recomputed many times, which is where the exponential blow-up comes from.",
+            "workedExample": "ways(n) = ways(n-1) + ways(n-2) with ways(0) = 1 and ways(1) = 1 gives the Fibonacci-like count of stair climbs.",
+            "checks": [
+              {
+                "id": "recursion-check-1",
+                "type": "mcq",
+                "prompt": "You count the ways to climb n stairs taking 1 or 2 steps at a time, with n up to 40. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "Recursion with memoisation or a bottom-up loop" },
+                  { "id": "b", "text": "Plain recursion without caching" },
+                  { "id": "c", "text": "Sort the stairs" },
+                  { "id": "d", "text": "Binary search on n" }
+                ],
+                "answer": "a",
+                "explanation": "2^40 calls is too many, but there are only 41 distinct subproblems."
+              },
+              {
+                "id": "recursion-check-2",
+                "type": "mcq",
+                "prompt": "Why does plain recursion for Fibonacci time out at n = 40?",
+                "options": [
+                  { "id": "a", "text": "It recomputes the same subproblems exponentially many times" },
+                  { "id": "b", "text": "Recursion is always slower than loops by a constant factor" },
+                  { "id": "c", "text": "Python cannot recurse past depth 5" },
+                  { "id": "d", "text": "It needs sorting first" }
+                ],
+                "answer": "a",
+                "explanation": "Without caching the call tree grows exponentially."
+              }
+            ]
+          },
+          "editorial": "Write the recurrence, then either memoise it or fill a table from the base cases upward.",
+          "problemIds": ["usaco-stairs"]
+        },
+        {
+          "id": "usaco-graphs",
+          "title": "Graphs (BFS, DFS)",
+          "summary": "Explore everything reachable, level by level or branch by branch.",
+          "lesson": {
+            "explanation": "A grid is a graph where each cell connects to its neighbours. BFS uses a queue and finds shortest distances; DFS uses a stack or recursion and is enough for reachability and connected components.",
+            "workedExample": "From (0,0) in a grid with a wall at (0,1), BFS visits the open cells and counts them without ever crossing the wall.",
+            "checks": [
+              {
+                "id": "graph-check-1",
+                "type": "mcq",
+                "prompt": "You need the shortest number of moves from a start cell to a target cell on a grid. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "BFS from the start" },
+                  { "id": "b", "text": "DFS from the start" },
+                  { "id": "c", "text": "Sort the cells" },
+                  { "id": "d", "text": "Binary search the number of moves" }
+                ],
+                "answer": "a",
+                "explanation": "BFS visits cells in order of distance, so the first time it reaches the target is the shortest path."
+              },
+              {
+                "id": "graph-check-2",
+                "type": "mcq",
+                "prompt": "How large is a BFS over an R by C grid?",
+                "options": [
+                  { "id": "a", "text": "O(R*C) time and space" },
+                  { "id": "b", "text": "O(2^(R*C))" },
+                  { "id": "c", "text": "O(R*C*log(R*C)) always" },
+                  { "id": "d", "text": "O(R+C) time" }
+                ],
+                "answer": "a",
+                "explanation": "Each cell enters the queue at most once."
+              }
+            ]
+          },
+          "editorial": "Queue the start, mark it visited, then repeatedly pop a cell and push unvisited open neighbours. Count or distance as you go.",
+          "problemIds": ["usaco-reachable"]
+        },
+        {
+          "id": "usaco-dp",
+          "title": "Dynamic programming",
+          "summary": "Store answers to subproblems instead of recomputing them.",
+          "lesson": {
+            "explanation": "DP needs overlapping subproblems and an optimal substructure. Define the state, write the transition, then decide the order to fill it in. The maximum-sum-no-adjacent problem uses two states: take this value or skip it.",
+            "workedExample": "For [3, 2, 5, 10, 7] the best is 3 + 5 + 7 = 15, which the recurrence best(i) = max(best(i-1), best(i-2) + value[i]) finds.",
+            "checks": [
+              {
+                "id": "dp-check-1",
+                "type": "mcq",
+                "prompt": "Choose values from a list so that no two chosen values are adjacent, maximising the sum. Which approach fits best?",
+                "options": [
+                  { "id": "a", "text": "DP with best(i) = max(best(i-1), best(i-2) + value[i])" },
+                  { "id": "b", "text": "Sort and take the two largest" },
+                  { "id": "c", "text": "Two pointers from both ends" },
+                  { "id": "d", "text": "Binary search for the best value" }
+                ],
+                "answer": "a",
+                "explanation": "Sorting loses the adjacency constraint, and greedy choices can block a better combination."
+              },
+              {
+                "id": "dp-check-2",
+                "type": "mcq",
+                "prompt": "Time complexity check: DP over n = 10^5 values with two states.",
+                "options": [
+                  { "id": "a", "text": "Yes, O(n) time and O(1) extra space" },
+                  { "id": "b", "text": "No, DP is O(2^n)" },
+                  { "id": "c", "text": "Only if the values are sorted" },
+                  { "id": "d", "text": "Only with recursion depth above n" }
+                ],
+                "answer": "a",
+                "explanation": "Each state is computed once from the previous two."
+              }
+            ]
+          },
+          "editorial": "Keep two rolling values: best skipping the current element and best including it. Update them left to right.",
+          "problemIds": ["usaco-no-adjacent"]
+        }
+      ]
+    }
+  ],
+  "problems": [
+    {
+      "id": "usaco-robot-path",
+      "title": "Robot Path",
+      "tier": "bronze",
+      "track": "usaco",
+      "difficulty": "easy",
+      "statement": "A robot starts at position 0. It reads a string of commands: 'R' adds 1, 'L' subtracts 1, and 'S' doubles the current position. Print the final position.\n\nInput: one line containing only the characters R, L and S.\nOutput: the final position.",
+      "topics": ["usaco-simulation"],
+      "points": 100,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "commands = input().strip()\nx = 0\nfor c in commands:\n    ...\nprint(x)\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    String commands = sc.nextLine().trim();\n    long x = 0;\n    // update x\n    System.out.println(x);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  string s; if(!(cin>>s)) return 0;\n  long long x = 0;\n  // update x\n  cout << x << endl;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "RR\n", "expected": "2" },
+        { "stdin": "RRS\n", "expected": "4" },
+        { "stdin": "LLS\n", "expected": "-4" },
+        { "stdin": "SSS\n", "expected": "0" }
+      ],
+      "editorial": "One loop, three branches. Keep x as a plain integer and print it at the end.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-middle-value",
+      "title": "Middle Value",
+      "tier": "bronze",
+      "track": "usaco",
+      "difficulty": "easy",
+      "statement": "Given n numbers, print the median: after sorting, the value at index n // 2 (0-indexed).\n\nInput: the first line contains n. The second line contains n space-separated integers.\nOutput: the median.",
+      "topics": ["usaco-sorting"],
+      "points": 100,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n = int(input())\nvalues = list(map(int, input().split()))\n# print the median\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    int[] a = new int[n];\n    for (int i = 0; i < n; i++) a[i] = sc.nextInt();\n    Arrays.sort(a);\n    System.out.println(a[n / 2]);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int n; if(!(cin>>n)) return 0;\n  vector<long long> a(n);\n  for(auto &v : a) cin >> v;\n  sort(a.begin(), a.end());\n  cout << a[n/2] << endl;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "5\n3 1 2 5 4\n", "expected": "3" },
+        { "stdin": "3\n9 1 5\n", "expected": "5" },
+        { "stdin": "1\n7\n", "expected": "7" },
+        { "stdin": "4\n10 2 8 6\n", "expected": "8" }
+      ],
+      "editorial": "Sort, then read index n // 2. Sorting is the whole problem.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-range-sums",
+      "title": "Range Sums",
+      "tier": "bronze",
+      "track": "usaco",
+      "difficulty": "easy",
+      "statement": "You are given n values and q queries. Each query asks for the sum of values from l to r inclusive, using 1-based positions.\n\nInput: the first line has n and q. The second line has n integers. The next q lines each contain l and r.\nOutput: one line per query with the sum.",
+      "topics": ["usaco-prefix-sums"],
+      "points": 150,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n, q = map(int, input().split())\nvalues = list(map(int, input().split()))\nprefix = [0] * (n + 1)\nfor i in range(1, n + 1):\n    prefix[i] = prefix[i - 1] + values[i - 1]\nfor _ in range(q):\n    l, r = map(int, input().split())\n    # print the sum from l to r\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt(), q = sc.nextInt();\n    long[] prefix = new long[n + 1];\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + sc.nextLong();\n    StringBuilder out = new StringBuilder();\n    for (int i = 0; i < q; i++) {\n      int l = sc.nextInt(), r = sc.nextInt();\n      out.append(prefix[r] - prefix[l - 1]).append('\\n');\n    }\n    System.out.print(out);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int n, q; if(!(cin>>n>>q)) return 0;\n  vector<long long> prefix(n+1, 0);\n  for(int i=1;i<=n;i++){ long long v; cin>>v; prefix[i]=prefix[i-1]+v; }\n  while(q--){ int l,r; cin>>l>>r; cout << prefix[r]-prefix[l-1] << \"\\n\"; }\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "4 2\n2 4 1 7\n2 3\n1 4\n", "expected": "5\n14" },
+        { "stdin": "1 1\n5\n1 1\n", "expected": "5" },
+        { "stdin": "3 3\n1 2 3\n1 1\n2 2\n3 3\n", "expected": "1\n2\n3" }
+      ],
+      "editorial": "Build prefix once, then every query is prefix[r] - prefix[l - 1].",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-pair-target",
+      "title": "Pair Target",
+      "tier": "silver",
+      "track": "usaco",
+      "difficulty": "medium",
+      "statement": "Given a sorted list of n distinct integers and a target t, print YES if two different values sum to t, otherwise NO.\n\nInput: the first line has n and t. The second line has n sorted integers.\nOutput: YES or NO.",
+      "topics": ["usaco-two-pointers"],
+      "points": 150,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n, t = map(int, input().split())\nvalues = list(map(int, input().split()))\nleft, right = 0, n - 1\n# two pointers\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    long t = sc.nextLong();\n    long[] a = new long[n];\n    for (int i = 0; i < n; i++) a[i] = sc.nextLong();\n    int l = 0, r = n - 1;\n    while (l < r) {\n      long sum = a[l] + a[r];\n      if (sum == t) { System.out.println(\"YES\"); return; }\n      if (sum < t) l++; else r--;\n    }\n    System.out.println(\"NO\");\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int n; long long t; if(!(cin>>n>>t)) return 0;\n  vector<long long> a(n);\n  for(auto &v : a) cin >> v;\n  int l=0, r=n-1;\n  while(l<r){ long long s=a[l]+a[r]; if(s==t){ cout<<\"YES\"; return 0;} if(s<t) l++; else r--; }\n  cout << \"NO\";\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "4 11\n1 3 4 8\n", "expected": "YES" },
+        { "stdin": "4 100\n1 3 4 8\n", "expected": "NO" },
+        { "stdin": "2 5\n2 3\n", "expected": "YES" }
+      ],
+      "editorial": "Move the pointer that can still change the sum in the right direction. Each value is visited once.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-smallest-square",
+      "title": "Smallest Square",
+      "tier": "silver",
+      "track": "usaco",
+      "difficulty": "medium",
+      "statement": "Given n, print the smallest integer x such that x*x is at least n.\n\nInput: one integer n (1 <= n <= 10^12).\nOutput: the smallest such x.",
+      "topics": ["usaco-binary-search"],
+      "points": 150,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n = int(input())\nlo, hi = 0, n\n# binary search the first x with x*x >= n\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    long n = sc.nextLong();\n    long lo = 0, hi = n;\n    while (lo < hi) {\n      long mid = (lo + hi) / 2;\n      if (mid * mid >= n) hi = mid; else lo = mid + 1;\n    }\n    System.out.println(lo);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  long long n; if(!(cin>>n)) return 0;\n  long long lo=0, hi=n;\n  while(lo<hi){ long long mid=(lo+hi)/2; if(mid*mid>=n) hi=mid; else lo=mid+1; }\n  cout << lo;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "10\n", "expected": "4" },
+        { "stdin": "1\n", "expected": "1" },
+        { "stdin": "17\n", "expected": "5" },
+        { "stdin": "1000000000000\n", "expected": "1000000" }
+      ],
+      "editorial": "The predicate mid*mid >= n is false then true. Binary search for the first true.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-meetings",
+      "title": "Meeting Room",
+      "tier": "silver",
+      "track": "usaco",
+      "difficulty": "medium",
+      "statement": "Given n meetings with start and end times, print the largest number of meetings you can attend without any overlap. A meeting ending at time t does not conflict with one starting at t.\n\nInput: the first line has n. The next n lines contain start and end.\nOutput: the maximum number of meetings.",
+      "topics": ["usaco-greedy"],
+      "points": 150,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n = int(input())\nmeetings = [tuple(map(int, input().split())) for _ in range(n)]\nmeetings.sort(key=lambda m: m[1])\ncount = 0\nlast_end = -1\nfor start, end in meetings:\n    ...\nprint(count)\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    int[][] m = new int[n][2];\n    for (int i = 0; i < n; i++) { m[i][0] = sc.nextInt(); m[i][1] = sc.nextInt(); }\n    Arrays.sort(m, Comparator.comparingInt(a -> a[1]));\n    int count = 0, lastEnd = Integer.MIN_VALUE;\n    for (int[] meeting : m) if (meeting[0] >= lastEnd) { count++; lastEnd = meeting[1]; }\n    System.out.println(count);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int n; if(!(cin>>n)) return 0;\n  vector<pair<int,int>> m(n);\n  for(auto &p : m) cin >> p.second >> p.first;\n  sort(m.begin(), m.end());\n  int count=0, last=-1e9;\n  for(auto &p : m){ if(p.second >= last){ count++; last = p.first; } }\n  cout << count;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "5\n1 4\n3 5\n0 6\n5 7\n8 9\n", "expected": "3" },
+        { "stdin": "1\n2 3\n", "expected": "1" },
+        { "stdin": "3\n1 5\n5 9\n2 3\n", "expected": "2" }
+      ],
+      "editorial": "Sort by end time. Take a meeting whenever it starts at or after the last taken one ends.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-stairs",
+      "title": "Stair Climb",
+      "tier": "gold",
+      "track": "usaco",
+      "difficulty": "hard",
+      "statement": "You climb a staircase of n steps, taking 1 or 2 steps at a time. Print the number of different ways to reach the top.\n\nInput: one integer n (1 <= n <= 40).\nOutput: the number of ways.",
+      "topics": ["usaco-recursion"],
+      "points": 200,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n = int(input())\n# count the ways\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    long[] dp = new long[n + 1];\n    dp[0] = 1;\n    if (n >= 1) dp[1] = 1;\n    for (int i = 2; i <= n; i++) dp[i] = dp[i - 1] + dp[i - 2];\n    System.out.println(dp[n]);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int n; if(!(cin>>n)) return 0;\n  vector<long long> dp(n+1, 0); dp[0] = 1; if(n>=1) dp[1] = 1;\n  for(int i=2;i<=n;i++) dp[i] = dp[i-1] + dp[i-2];\n  cout << dp[n];\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "1\n", "expected": "1" },
+        { "stdin": "3\n", "expected": "3" },
+        { "stdin": "5\n", "expected": "8" },
+        { "stdin": "10\n", "expected": "89" }
+      ],
+      "editorial": "ways(n) = ways(n-1) + ways(n-2) with ways(0) = ways(1) = 1. Fill the table upward.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-reachable",
+      "title": "Reachable Cells",
+      "tier": "gold",
+      "track": "usaco",
+      "difficulty": "hard",
+      "statement": "You are given a grid of '.' (open) and '#' (wall). Starting from the top-left cell, count how many open cells you can reach by moving up, down, left and right. The start is always open.\n\nInput: the first line has rows and columns. The next rows lines contain the grid.\nOutput: the number of reachable open cells.",
+      "topics": ["usaco-graphs"],
+      "points": 200,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "rows, cols = map(int, input().split())\ngrid = [input().strip() for _ in range(rows)]\n# BFS from (0, 0) and count the reachable cells\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int r = sc.nextInt(), c = sc.nextInt();\n    char[][] g = new char[r][];\n    for (int i = 0; i < r; i++) g[i] = sc.next().toCharArray();\n    boolean[][] seen = new boolean[r][c];\n    ArrayDeque<int[]> q = new ArrayDeque<>();\n    q.add(new int[]{0, 0}); seen[0][0] = true;\n    int count = 0;\n    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n    while (!q.isEmpty()) {\n      int[] cur = q.poll(); count++;\n      for (int[] d : dirs) {\n        int nr = cur[0] + d[0], nc = cur[1] + d[1];\n        if (nr < 0 || nc < 0 || nr >= r || nc >= c) continue;\n        if (seen[nr][nc] || g[nr][nc] == '#') continue;\n        seen[nr][nc] = true; q.add(new int[]{nr, nc});\n      }\n    }\n    System.out.println(count);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int r,c; if(!(cin>>r>>c)) return 0;\n  vector<string> g(r);\n  for(auto &row : g) cin >> row;\n  vector<vector<int>> seen(r, vector<int>(c,0));\n  queue<pair<int,int>> q; q.push({0,0}); seen[0][0]=1; int cnt=0;\n  int dr[4]={1,-1,0,0}, dc[4]={0,0,1,-1};\n  while(!q.empty()){ auto [x,y]=q.front(); q.pop(); cnt++;\n    for(int d=0;d<4;d++){ int nx=x+dr[d], ny=y+dc[d];\n      if(nx<0||ny<0||nx>=r||ny>=c||seen[nx][ny]||g[nx][ny]=='#') continue;\n      seen[nx][ny]=1; q.push({nx,ny}); } }\n  cout << cnt;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "2 2\n..\n..\n", "expected": "4" },
+        { "stdin": "2 3\n.#.\n.#.\n", "expected": "1" },
+        { "stdin": "3 3\n...\n.#.\n...\n", "expected": "8" }
+      ],
+      "editorial": "Standard flood fill: queue the start, mark visited on push, and count pops.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "usaco-no-adjacent",
+      "title": "No Adjacent",
+      "tier": "gold",
+      "track": "usaco",
+      "difficulty": "hard",
+      "statement": "Given n integers, choose a subset with no two chosen positions adjacent, maximising the sum. Print that maximum sum.\n\nInput: the first line has n. The second line has n integers (each may be negative).\nOutput: the maximum sum.",
+      "topics": ["usaco-dp"],
+      "points": 200,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "n = int(input())\nvalues = list(map(int, input().split()))\n# maximum sum with no two adjacent\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int n = sc.nextInt();\n    long include = 0, exclude = 0;\n    for (int i = 0; i < n; i++) {\n      long v = sc.nextLong();\n      long nextInclude = exclude + v;\n      exclude = Math.max(include, exclude);\n      include = nextInclude;\n    }\n    System.out.println(Math.max(include, exclude));\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int n; if(!(cin>>n)) return 0;\n  long long inc=0, exc=0;\n  for(int i=0;i<n;i++){ long long v; cin>>v; long long ninc = exc + v; exc = max(inc, exc); inc = ninc; }\n  cout << max(inc, exc);\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "5\n3 2 5 10 7\n", "expected": "15" },
+        { "stdin": "4\n5 1 1 5\n", "expected": "10" },
+        { "stdin": "3\n-1 -2 -3\n", "expected": "0" }
+      ],
+      "editorial": "Track two values: the best sum ending by including the current element, and the best sum that skips it.",
+      "editorialUnlockAfterAttempts": 3
+    }
+  ]
+}

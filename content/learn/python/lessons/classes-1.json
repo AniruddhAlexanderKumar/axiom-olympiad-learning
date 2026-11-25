@@ -1,0 +1,80 @@
+{
+  "id": "classes-1",
+  "title": "Objects with memory",
+  "skillId": "classes",
+  "language": "python",
+  "xp": 45,
+  "intro": {
+    "title": "A class is a blueprint for objects",
+    "body": "__init__ sets up each new object. self is the object being worked on, and methods read or change its attributes.",
+    "sample": "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def add(self, n):\n        self.value += n"
+  },
+  "challenges": [
+    {
+      "id": "cls-1-mcq",
+      "type": "mcq",
+      "prompt": "What does this print?",
+      "code": "class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return self.name + \" barks\"\n\nprint(Dog(\"Rex\").speak())",
+      "options": [
+        { "id": "a", "text": "Rex barks" },
+        { "id": "b", "text": "barks" },
+        { "id": "c", "text": "name barks" },
+        { "id": "d", "text": "An error" }
+      ],
+      "answer": "a",
+      "explanation": "The object stores Rex in self.name, and speak() returns that name with text added."
+    },
+    {
+      "id": "cls-2-type",
+      "type": "fill-blank",
+      "prompt": "Type the character missing at the end of the method line.",
+      "template": "class Box:\n    def __init__(self{{0}}\n        self.items = []",
+      "mode": "type",
+      "blanks": [{ "answers": [":"] }],
+      "explanation": "def lines end with a colon, including methods."
+    },
+    {
+      "id": "cls-3-order",
+      "type": "order",
+      "prompt": "Arrange this into a class with a method, then a call to that method.",
+      "lines": [
+        { "id": "a", "text": "    def bump(self):" },
+        { "id": "b", "text": "class Score:" },
+        { "id": "c", "text": "        self.value += 1" },
+        { "id": "d", "text": "    def __init__(self):" },
+        { "id": "e", "text": "        self.value = 0" },
+        { "id": "f", "text": "s = Score()" },
+        { "id": "g", "text": "s.bump()" }
+      ],
+      "answer": ["b", "d", "e", "a", "c", "f", "g"],
+      "explanation": "Define the class, its constructor, its method, then create the object and call the method."
+    },
+    {
+      "id": "cls-4-bug",
+      "type": "bug",
+      "prompt": "Calling this method raises an error. Tap the line and choose the fix.",
+      "lines": [
+        { "id": "l1", "text": "class Player:" },
+        { "id": "l2", "text": "    def __init__(self, name):" },
+        { "id": "l3", "text": "        self.name = name" },
+        { "id": "l4", "text": "    def greet():" },
+        { "id": "l5", "text": "        return self.name" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "    def greet(self):" },
+        { "id": "f2", "text": "    def greet(name):" },
+        { "id": "f3", "text": "    def self.greet():" }
+      ],
+      "answer": { "lineId": "l4", "fixId": "f1" },
+      "explanation": "Every instance method receives the object as its first parameter, conventionally named self."
+    },
+    {
+      "id": "cls-5-tf",
+      "type": "true-false",
+      "prompt": "Check the claim.",
+      "statement": "__init__ runs automatically when you create a new object.",
+      "answer": true,
+      "explanation": "The constructor runs on every Dog(...) style call."
+    }
+  ]
+}

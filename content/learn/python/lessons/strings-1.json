@@ -1,0 +1,73 @@
+{
+  "id": "strings-1",
+  "title": "Text under the microscope",
+  "skillId": "strings",
+  "language": "python",
+  "xp": 40,
+  "intro": {
+    "title": "Strings are sequences of characters",
+    "body": "Index and slice them like lists. Methods such as upper() and split() return new strings because strings never change in place.",
+    "sample": "word = \"contest\"\nprint(word[0])      # c\nprint(word[-1])     # t\nprint(word[:3])     # con"
+  },
+  "challenges": [
+    {
+      "id": "str-1-mcq",
+      "type": "mcq",
+      "prompt": "What does this print?",
+      "code": "s = \"abc\"\nprint(s[1])",
+      "options": [
+        { "id": "a", "text": "a" },
+        { "id": "b", "text": "b" },
+        { "id": "c", "text": "ab" },
+        { "id": "d", "text": "c" }
+      ],
+      "answer": "b",
+      "explanation": "Index 1 is the second character."
+    },
+    {
+      "id": "str-2-bank",
+      "type": "word-bank",
+      "prompt": "Make the code print the text in capitals.",
+      "template": "name = \"ada\"\nprint(name.{{0}}())",
+      "mode": "wordbank",
+      "bank": ["upper", "lower", "capitalise", "title"],
+      "blanks": [{ "answers": ["upper"] }],
+      "explanation": "upper() returns an uppercase copy of the string."
+    },
+    {
+      "id": "str-3-tf",
+      "type": "true-false",
+      "prompt": "Check the claim.",
+      "statement": "After word.upper() runs, the original variable word is uppercase.",
+      "code": "word = \"hi\"\nword.upper()",
+      "answer": false,
+      "explanation": "upper() returns a new string; you must assign it back to change your variable."
+    },
+    {
+      "id": "str-4-match",
+      "type": "match",
+      "prompt": "Match each expression with its result.",
+      "pairs": [
+        { "left": "\"abc\"[0]", "right": "a" },
+        { "left": "\"abc\"[-1]", "right": "c" },
+        { "left": "\"abc\"[::-1]", "right": "cba" },
+        { "left": "len(\"abc\")", "right": "3" }
+      ],
+      "explanation": "Negative indices count from the end and a step of -1 reverses the string."
+    },
+    {
+      "id": "str-5-frq",
+      "type": "frq",
+      "prompt": "Read a word and print it reversed.",
+      "starterCode": {
+        "python": "word = input().strip()\n# print the word backwards\n"
+      },
+      "tests": [
+        { "stdin": "contest\n", "expected": "tsetnoc" },
+        { "stdin": "a\n", "expected": "a" },
+        { "stdin": "level\n", "expected": "level" }
+      ],
+      "explanation": "Slicing with word[::-1] reverses the string."
+    }
+  ]
+}

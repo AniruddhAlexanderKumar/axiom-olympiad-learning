@@ -1,0 +1,80 @@
+{
+  "id": "functions-1",
+  "title": "Your own commands",
+  "skillId": "functions",
+  "language": "python",
+  "xp": 40,
+  "intro": {
+    "title": "def names a block of code you can run again",
+    "body": "Parameters carry values in, return sends one value back. A function without return gives you None.",
+    "sample": "def double(n):\n    return n * 2\n\nprint(double(21))"
+  },
+  "challenges": [
+    {
+      "id": "fn-1-mcq",
+      "type": "mcq",
+      "prompt": "What does this print?",
+      "code": "def add(a, b):\n    return a + b\n\nprint(add(2, 3))",
+      "options": [
+        { "id": "a", "text": "23" },
+        { "id": "b", "text": "5" },
+        { "id": "c", "text": "None" },
+        { "id": "d", "text": "An error" }
+      ],
+      "answer": "b",
+      "explanation": "add returns 2 + 3, and print shows that returned value."
+    },
+    {
+      "id": "fn-2-type",
+      "type": "fill-blank",
+      "prompt": "Type what is missing at the end of the def line.",
+      "template": "def greet(name){{0}}\n    return \"Hi \" + name",
+      "mode": "type",
+      "blanks": [{ "answers": [":"] }],
+      "explanation": "def lines end with a colon."
+    },
+    {
+      "id": "fn-3-order",
+      "type": "order",
+      "prompt": "Arrange this into a function definition followed by its call.",
+      "lines": [
+        { "id": "a", "text": "print(square(4))" },
+        { "id": "b", "text": "    return n * n" },
+        { "id": "c", "text": "def square(n):" }
+      ],
+      "answer": ["c", "b", "a"],
+      "explanation": "Define before calling; the indented return belongs to the def."
+    },
+    {
+      "id": "fn-4-bug",
+      "type": "bug",
+      "prompt": "The function prints but the value disappears. Tap the line to change and pick the fix.",
+      "lines": [
+        { "id": "l1", "text": "def total(a, b):" },
+        { "id": "l2", "text": "    print(a + b)" },
+        { "id": "l3", "text": "x = total(2, 3) + 1" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "    return a + b" },
+        { "id": "f2", "text": "    a + b" },
+        { "id": "f3", "text": "    print(return a + b)" }
+      ],
+      "answer": { "lineId": "l2", "fixId": "f1" },
+      "explanation": "print() displays a value but returns None; the caller needs return."
+    },
+    {
+      "id": "fn-5-frq",
+      "type": "frq",
+      "prompt": "Read n and print double that number, using a function called twice_number.",
+      "starterCode": {
+        "python": "def twice_number(n):\n    # return twice n\n    pass\n\nn = int(input())\nprint(twice_number(n))\n"
+      },
+      "tests": [
+        { "stdin": "7\n", "expected": "14" },
+        { "stdin": "0\n", "expected": "0" },
+        { "stdin": "-3\n", "expected": "-6" }
+      ],
+      "explanation": "twice_number simply returns n * 2."
+    }
+  ]
+}

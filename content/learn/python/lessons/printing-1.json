@@ -1,0 +1,76 @@
+{
+  "id": "printing-1",
+  "title": "Say it out loud",
+  "skillId": "printing",
+  "language": "python",
+  "xp": 30,
+  "intro": {
+    "title": "print() writes to the screen",
+    "body": "print() takes whatever is inside the parentheses and shows it. Text goes in quotes; numbers do not.",
+    "sample": "print(\"Hello, world!\")\nprint(42)"
+  },
+  "challenges": [
+    {
+      "id": "print-1-mcq",
+      "type": "mcq",
+      "prompt": "What appears on the screen?",
+      "code": "print(\"ready\")\nprint(3)",
+      "options": [
+        { "id": "a", "text": "ready then 3 on the next line" },
+        { "id": "b", "text": "ready 3" },
+        { "id": "c", "text": "\"ready\" then \"3\"" },
+        { "id": "d", "text": "Nothing" }
+      ],
+      "answer": "a",
+      "explanation": "Each print() call writes its value and then moves to a new line."
+    },
+    {
+      "id": "print-2-tf",
+      "type": "true-false",
+      "prompt": "Decide whether the statement about this code is true.",
+      "statement": "This code prints the word Hello without quotation marks.",
+      "code": "print(\"Hello\")",
+      "answer": true,
+      "explanation": "Quotes mark the text in code; they are not printed."
+    },
+    {
+      "id": "print-3-bank",
+      "type": "word-bank",
+      "prompt": "Complete the line so it prints Hi!",
+      "template": "print({{0}})",
+      "mode": "wordbank",
+      "bank": ["\"Hi!\"", "Hi!", "print", "()"],
+      "blanks": [{ "answers": ["\"Hi!\"", "'Hi!'"] }],
+      "explanation": "Text must be wrapped in quotes, so print(\"Hi!\") is correct."
+    },
+    {
+      "id": "print-4-bug",
+      "type": "bug",
+      "prompt": "Tap the broken line, then pick the fix.",
+      "lines": [
+        { "id": "l1", "text": "name = \"Ada\"" },
+        { "id": "l2", "text": "print(\"Hello, name\")" },
+        { "id": "l3", "text": "print(name)" }
+      ],
+      "fixes": [
+        { "id": "f1", "text": "print(\"Hello, \" + name)" },
+        { "id": "f2", "text": "print(Hello, name)" },
+        { "id": "f3", "text": "print(\"Hello, name\") + name" }
+      ],
+      "answer": { "lineId": "l2", "fixId": "f1" },
+      "explanation": "Quotes around name make it literal text. Joining with + inserts the variable's value."
+    },
+    {
+      "id": "print-5-order",
+      "type": "order",
+      "prompt": "Put the lines in order so the program prints a greeting, then the score.",
+      "lines": [
+        { "id": "a", "text": "print(\"Score:\")" },
+        { "id": "b", "text": "print(10)" },
+        { "id": "c", "text": "print(\"Welcome!\")" }
+      ],
+      "answer": ["c", "a", "b"],
+      "explanation": "Programs run top to bottom, so the greeting comes first."
+    }
+  ]
+}

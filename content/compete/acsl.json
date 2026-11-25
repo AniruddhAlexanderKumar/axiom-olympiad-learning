@@ -1,0 +1,145 @@
+{
+  "id": "acsl",
+  "title": "ACSL",
+  "description": "Short-answer contest skills: number systems and precise string work.",
+  "available": true,
+  "tiers": [
+    {
+      "id": "junior",
+      "title": "Junior",
+      "description": "Number systems and string manipulation, the ACSL Junior staples.",
+      "unlockSkills": ["conditionals", "loops"],
+      "topics": [
+        {
+          "id": "acsl-number-systems",
+          "title": "Number systems",
+          "summary": "Read binary and other bases without a calculator.",
+          "lesson": {
+            "explanation": "In base b, the digits of a number multiply powers of b from the right. Binary digits are worth 1, 2, 4, 8, 16 and so on, so 1011 is 8 + 0 + 2 + 1 = 11.",
+            "workedExample": "1011 in binary: 1*8 + 0*4 + 1*2 + 1*1 = 11.",
+            "checks": [
+              {
+                "id": "acsl-num-check-1",
+                "type": "mcq",
+                "prompt": "What is 10110 in binary as a decimal number?",
+                "options": [
+                  { "id": "a", "text": "22" },
+                  { "id": "b", "text": "20" },
+                  { "id": "c", "text": "26" },
+                  { "id": "d", "text": "11" }
+                ],
+                "answer": "a",
+                "explanation": "16 + 0 + 4 + 2 + 0 = 22."
+              },
+              {
+                "id": "acsl-num-check-2",
+                "type": "mcq",
+                "prompt": "Which loop converts a binary string to its value?",
+                "options": [
+                  { "id": "a", "text": "value = value * 2 + digit, reading left to right" },
+                  { "id": "b", "text": "value = value + digit * 2" },
+                  { "id": "c", "text": "value = value * 10 + digit" },
+                  { "id": "d", "text": "value = 2 * digit" }
+                ],
+                "answer": "a",
+                "explanation": "Each new digit shifts everything already seen one place left, which means times two."
+              }
+            ]
+          },
+          "editorial": "Start at 0 and for every digit do value = value * base + digit. That works for any base, not just binary.",
+          "problemIds": ["acsl-binary-value"]
+        },
+        {
+          "id": "acsl-string-manipulation",
+          "title": "String manipulation",
+          "summary": "Walk a string character by character and transform it.",
+          "lesson": {
+            "explanation": "Letters have an order: ord('A') is 65 and ord('Z') is 90. Shifting a letter forward by k means adding k and wrapping around with modulo 26, so Z shifted by 1 becomes A.",
+            "workedExample": "HELLO shifted by 3: H→K, E→H, L→O, L→O, O→R, which gives KHOOR.",
+            "checks": [
+              {
+                "id": "acsl-string-check-1",
+                "type": "mcq",
+                "prompt": "What is \"ABC\" shifted forward by 1?",
+                "options": [
+                  { "id": "a", "text": "BCD" },
+                  { "id": "b", "text": "ABC" },
+                  { "id": "c", "text": "CDB" },
+                  { "id": "d", "text": "ZAB" }
+                ],
+                "answer": "a",
+                "explanation": "Each letter moves to the next one in the alphabet."
+              },
+              {
+                "id": "acsl-string-check-2",
+                "type": "mcq",
+                "prompt": "How do you wrap Z forward by 1 to A?",
+                "options": [
+                  { "id": "a", "text": "(ord(c) - 65 + k) % 26 + 65" },
+                  { "id": "b", "text": "ord(c) + k" },
+                  { "id": "c", "text": "chr(ord(c) + k)" },
+                  { "id": "d", "text": "ord(c) % 65 + k" }
+                ],
+                "answer": "a",
+                "explanation": "Subtract 65 to get 0-25, shift, wrap with % 26, then add 65 back."
+              }
+            ]
+          },
+          "editorial": "Convert to 0-25, add the shift, take % 26, convert back. Uppercase ASCII starts at 65.",
+          "problemIds": ["acsl-shift"]
+        }
+      ]
+    }
+  ],
+  "problems": [
+    {
+      "id": "acsl-binary-value",
+      "title": "Binary Value",
+      "tier": "junior",
+      "track": "acsl",
+      "difficulty": "easy",
+      "statement": "Given a binary string, print its decimal value.\n\nInput: one line containing only 0 and 1 characters.\nOutput: the decimal value.",
+      "topics": ["acsl-number-systems"],
+      "points": 100,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "bits = input().strip()\nvalue = 0\nfor bit in bits:\n    ...\nprint(value)\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    String bits = sc.next();\n    long value = 0;\n    for (char bit : bits.toCharArray()) value = value * 2 + (bit - '0');\n    System.out.println(value);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  string bits; if(!(cin>>bits)) return 0;\n  long long value = 0;\n  for(char bit : bits) value = value * 2 + (bit - '0');\n  cout << value;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "1011\n", "expected": "11" },
+        { "stdin": "0\n", "expected": "0" },
+        { "stdin": "11111111\n", "expected": "255" }
+      ],
+      "editorial": "value = value * 2 + digit, one character at a time.",
+      "editorialUnlockAfterAttempts": 3
+    },
+    {
+      "id": "acsl-shift",
+      "title": "Caesar Shift",
+      "tier": "junior",
+      "track": "acsl",
+      "difficulty": "easy",
+      "statement": "Given a shift k and an uppercase word, shift every letter forward by k positions, wrapping from Z back to A.\n\nInput: the first line contains k. The second line contains the word.\nOutput: the shifted word.",
+      "topics": ["acsl-string-manipulation"],
+      "points": 100,
+      "timeLimitMs": 2000,
+      "memoryLimitKb": 128000,
+      "starterCode": {
+        "python": "k = int(input())\nword = input().strip()\nresult = \"\"\nfor ch in word:\n    ...\nprint(result)\n",
+        "java": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner sc = new Scanner(System.in);\n    int k = sc.nextInt();\n    String word = sc.next();\n    StringBuilder out = new StringBuilder();\n    for (char ch : word.toCharArray()) out.append((char) ('A' + (ch - 'A' + k) % 26));\n    System.out.println(out);\n  }\n}\n",
+        "cpp": "#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  int k; string word; if(!(cin>>k>>word)) return 0;\n  for(char &ch : word) ch = 'A' + (ch - 'A' + k) % 26;\n  cout << word;\n  return 0;\n}\n"
+      },
+      "tests": [
+        { "stdin": "3\nHELLO\n", "expected": "KHOOR" },
+        { "stdin": "1\nABC\n", "expected": "BCD" },
+        { "stdin": "0\nXYZ\n", "expected": "XYZ" },
+        { "stdin": "2\nZZZ\n", "expected": "BBB" }
+      ],
+      "editorial": "Normalise to 0-25, add k, wrap with mod 26, then map back to a letter.",
+      "editorialUnlockAfterAttempts": 3
+    }
+  ]
+}

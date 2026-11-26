@@ -46,7 +46,7 @@ export default function GoalScreen() {
 const styles = StyleSheet.create({
   header: { gap: spacing.sm, paddingTop: spacing.xl },
   goalCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  goalCardActive: { borderColor: colors.green, borderWidth: 2, backgroundColor: '#F6FFEF' },
+  goalCardActive: { borderColor: colors.green, borderWidth: 2, backgroundColor: '#DDF4FF' },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.borderStrong },
   radioActive: { borderColor: colors.green, backgroundColor: colors.green },
 });

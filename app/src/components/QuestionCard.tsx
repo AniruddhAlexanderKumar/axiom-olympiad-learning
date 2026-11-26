@@ -142,7 +142,7 @@ function TrueFalse({
               styles.tfButton,
               value === option && {
                 borderColor: option ? colors.green : colors.red,
-                backgroundColor: option ? '#F1FFE6' : colors.redSoft,
+                backgroundColor: option ? '#DDF4FF' : colors.redSoft,
               },
             ]}
           >
@@ -205,7 +205,7 @@ function FillBlank({
                       key={partIndex}
                       disabled={disabled}
                       onPress={() => setActive(index)}
-                      style={[styles.blank, active === index && { borderColor: colors.blue }, values[index] ? { backgroundColor: '#E7F8DC' } : null]}
+                      style={[styles.blank, active === index && { borderColor: colors.blue }, values[index] ? { backgroundColor: '#DDF4FF' } : null]}
                     >
                       <Text style={styles.blankLabel}>{values[index] || ' '}</Text>
                     </Pressable>
@@ -340,7 +340,7 @@ function MatchQuestion({
               style={[
                 styles.matchCard,
                 selectedLeft === item && { borderColor: colors.blue },
-                pairs[item] && { backgroundColor: '#F1FFE6', borderColor: colors.green },
+                pairs[item] && { backgroundColor: '#DDF4FF', borderColor: colors.green },
               ]}
             >
               <Text style={styles.matchCode}>{item}</Text>
@@ -408,7 +408,7 @@ function BugQuestion({
             key={fix.id}
             disabled={disabled}
             onPress={() => setFixId(fix.id)}
-            style={[styles.lineOption, fixId === fix.id && { borderColor: colors.green, backgroundColor: '#F1FFE6' }]}
+            style={[styles.lineOption, fixId === fix.id && { borderColor: colors.green, backgroundColor: '#DDF4FF' }]}
           >
             <Text style={styles.templateText}>{fix.text}</Text>
           </Pressable>
@@ -502,11 +502,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     alignItems: 'center',
   },
-  blankLabel: { fontFamily: 'monospace', fontSize: 14, color: '#86EFAC' },
+  blankLabel: { fontFamily: 'monospace', fontSize: 14, color: '#7DD3FC' },
   blankInput: {
     fontFamily: 'monospace',
     fontSize: 14,
-    color: '#86EFAC',
+    color: '#7DD3FC',
     minWidth: 84,
   },
   bank: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

@@ -33,9 +33,9 @@ export function StreakHeatmap({ days }: { days: { day: string; xp: number }[] })
                     level === 0
                       ? colors.surfaceAlt
                       : level === 1
-                        ? '#C6F6A6'
+                        ? '#BFDBFE'
                         : level === 2
-                          ? '#8FE05A'
+                          ? '#60A5FA'
                           : level === 3
                             ? colors.green
                             : colors.greenDark,
@@ -47,7 +47,7 @@ export function StreakHeatmap({ days }: { days: { day: string; xp: number }[] })
       </View>
       <View style={styles.legend}>
         <Text style={type.tiny}>LESS</Text>
-        {[colors.surfaceAlt, '#C6F6A6', '#8FE05A', colors.green, colors.greenDark].map((color) => (
+        {[colors.surfaceAlt, '#BFDBFE', '#60A5FA', colors.green, colors.greenDark].map((color) => (
           <View key={color} style={[styles.legendCell, { backgroundColor: color }]} />
         ))}
         <Text style={type.tiny}>MORE</Text>

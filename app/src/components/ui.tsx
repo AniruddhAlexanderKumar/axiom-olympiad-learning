@@ -50,7 +50,7 @@ export function Card({
   const tones = {
     default: colors.white,
     muted: colors.surface,
-    green: '#F1FFE6',
+    green: '#DDF4FF',
     blue: colors.blueSoft,
     purple: colors.purpleSoft,
   };

@@ -88,5 +88,5 @@ export default function LanguageScreen() {
 
 const styles = StyleSheet.create({
   trackCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  trackActive: { borderColor: colors.green, borderWidth: 2, backgroundColor: '#F6FFEF' },
+  trackActive: { borderColor: colors.green, borderWidth: 2, backgroundColor: '#DDF4FF' },
 });

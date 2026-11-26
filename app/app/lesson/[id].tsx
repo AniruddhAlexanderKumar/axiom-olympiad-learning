@@ -195,7 +195,7 @@ function FeedbackBanner({
 }) {
   const mood: MascotMood = correct ? 'happy' : 'sad';
   return (
-    <View style={[styles.feedback, { backgroundColor: correct ? '#EAFBE0' : '#FFECEC', borderColor: correct ? colors.green : colors.red }]}>
+    <View style={[styles.feedback, { backgroundColor: correct ? '#DDF4FF' : '#FFECEC', borderColor: correct ? colors.green : colors.red }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
         <Mascot mood={mood} size={48} />
         <View style={{ flex: 1 }}>

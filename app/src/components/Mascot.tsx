@@ -4,12 +4,13 @@ import { colors } from '../theme';
 
 export type MascotMood = 'idle' | 'happy' | 'cheer' | 'sad' | 'think';
 
+// Zumi's mascot is blue in every mood; only the shade shifts so the mood still reads.
 const MOOD_COLORS: Record<MascotMood, string> = {
-  idle: colors.green,
-  happy: colors.green,
-  cheer: colors.yellow,
-  sad: colors.red,
-  think: colors.blue,
+  idle: colors.blue,
+  happy: colors.blue,
+  cheer: '#0EA5E9',
+  sad: '#63B9E8',
+  think: colors.blueDark,
 };
 
 export function Mascot({ mood = 'idle', size = 84 }: { mood?: MascotMood; size?: number }) {
@@ -48,7 +49,7 @@ export function Mascot({ mood = 'idle', size = 84 }: { mood?: MascotMood; size?:
         justifyContent: 'center',
         transform: [{ translateY: bob }, { scale: pop }],
         borderWidth: 4,
-        borderColor: 'rgba(0,0,0,0.08)',
+        borderColor: 'rgba(2,132,199,0.2)',
       }}
     >
       <View style={{ flexDirection: 'row', gap: size * 0.16, marginTop: size * 0.02 }}>
@@ -67,8 +68,8 @@ export function Mascot({ mood = 'idle', size = 84 }: { mood?: MascotMood; size?:
         }}
       />
       <View style={{ position: 'absolute', right: size * 0.08, bottom: size * 0.16, flexDirection: 'row', gap: 3 }}>
-        <View style={{ width: size * 0.08, height: 3, borderRadius: 2, backgroundColor: 'rgba(0,0,0,0.18)' }} />
-        <View style={{ width: size * 0.08, height: 3, borderRadius: 2, backgroundColor: 'rgba(0,0,0,0.18)' }} />
+        <View style={{ width: size * 0.08, height: 3, borderRadius: 2, backgroundColor: 'rgba(2,132,199,0.28)' }} />
+        <View style={{ width: size * 0.08, height: 3, borderRadius: 2, backgroundColor: 'rgba(2,132,199,0.28)' }} />
       </View>
     </Animated.View>
   );

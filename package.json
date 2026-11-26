@@ -4,7 +4,7 @@
   "description": "Duolingo-style coding and contest-prep app: Expo client, Express API, PostgreSQL, Judge0.",
   "scripts": {
     "install:all": "npm install && npm --prefix server install && npm --prefix app install",
-    "dev": "concurrently -k -n API,APP -c cyan,green \"npm:dev:api\" \"npm:dev:app\"",
+    "dev": "concurrently -k -n API,APP -c cyan,blue \"npm:dev:api\" \"npm:dev:app\"",
     "dev:api": "npm --prefix server run dev",
     "dev:app": "npm --prefix app run web",
     "build": "npm --prefix app run build",

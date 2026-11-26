@@ -48,14 +48,26 @@ const corsOrigins = (trim(process.env.CORS_ORIGINS) || '')
   .map((origin) => origin.trim().replace(/\/+$/, ''))
   .filter(Boolean);
 
+const isRender = Boolean(trim(process.env.RENDER));
+const isVercel = Boolean(trim(process.env.VERCEL) || trim(process.env.VERCEL_ENV));
+// Hosted production deployments are treated as production even if NODE_ENV was
+// not explicitly set, so required secrets are still validated on those hosts.
+const isProduction =
+  process.env.NODE_ENV === 'production' ||
+  isRender ||
+  trim(process.env.VERCEL_ENV).toLowerCase() === 'production';
+
 export const config = {
   port: num(process.env.PORT, 4000),
   host: trim(process.env.HOST) || '0.0.0.0',
   databaseUrl,
   databaseSsl: needsSsl(databaseUrl),
+  // Development keeps a clearly-labelled fallback so the app runs without
+  // configuration. Production must provide JWT_SECRET (validated below).
   jwtSecret: trim(process.env.JWT_SECRET) || 'insecure-development-secret-change-me',
-  isProduction: process.env.NODE_ENV === 'production',
-  isRender: Boolean(trim(process.env.RENDER)),
+  isProduction,
+  isRender,
+  isVercel,
   publicUrl,
   judge0: {
     url: trim(process.env.JUDGE0_URL).replace(/\/$/, ''),
@@ -67,15 +79,56 @@ export const config = {
   webDir: trim(process.env.WEB_DIR),
 };
 
-if (config.isProduction && !process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET must be set in production.');
+if (config.isProduction) {
+  const jwtSecretRaw = process.env.JWT_SECRET;
+  const jwtSecretAliases = ['JWT_KEY', 'AUTH_SECRET', 'SESSION_SECRET', 'JWT_TOKEN_SECRET'].filter(
+    (name) => trim(process.env[name]),
+  );
+  if (!jwtSecretRaw || !jwtSecretRaw.trim()) {
+    if (jwtSecretAliases.length > 0) {
+      throw new Error(
+        `JWT_SECRET must be set in production. Found ${jwtSecretAliases.join(', ')} but this app only reads JWT_SECRET; ` +
+          'rename that variable to JWT_SECRET. Generate a value with `openssl rand -hex 32` and add it as JWT_SECRET ' +
+          'in your host dashboard (Vercel: Project Settings -> Environment Variables; Render: service Environment). ' +
+          'Never commit the value.',
+      );
+    }
+    throw new Error(
+      'JWT_SECRET must be set in production. Generate a value with `openssl rand -hex 32` ' +
+        '(or `node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"`) and add it as an environment ' +
+        'variable named JWT_SECRET in your host dashboard (Vercel: Project Settings -> Environment Variables; ' +
+        'Render: service Environment). Never commit the value or reuse a placeholder.',
+    );
+  }
+
+  const normalizedSecret = jwtSecretRaw.trim().toLowerCase();
+  const placeholderSecrets = new Set([
+    'change-me',
+    'changeme',
+    'secret',
+    'test-secret',
+    'insecure-development-secret-change-me',
+  ]);
+  if (
+    placeholderSecrets.has(normalizedSecret) ||
+    normalizedSecret.includes('change-me') ||
+    normalizedSecret.includes('replace-with') ||
+    normalizedSecret.length < 32
+  ) {
+    throw new Error(
+      'JWT_SECRET is set but looks like a placeholder or is too short. Replace it with a strong random value ' +
+        '(`openssl rand -hex 32`) in your host dashboard and redeploy. Never commit the value.',
+    );
+  }
 }
 
-// Render's filesystem is ephemeral, so the embedded PGlite database would be
-// wiped on every deploy. Fail fast instead of silently losing student data.
-if (config.isProduction && config.isRender && !config.databaseUrl) {
+// Render and Vercel have ephemeral/read-only filesystems, so the embedded PGlite
+// database would be lost (or fail to start) on every deploy. Fail fast instead
+// of silently losing student data.
+if (config.isProduction && (config.isRender || config.isVercel) && !config.databaseUrl) {
   throw new Error(
-    'DATABASE_URL must be set on Render. Attach a Render Postgres database (render.yaml does this) so progress is not lost when the service redeploys.',
+    'DATABASE_URL must be set on Render/Vercel. Attach or point at a PostgreSQL database ' +
+      '(Render Postgres, Neon or Supabase) so progress survives redeploys. Local production builds can leave it unset.',
   );
 }
 

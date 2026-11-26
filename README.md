@@ -119,6 +119,50 @@ Until `JUDGE0_URL` is set, tappable question types and all lesson flows work
 normally, and code submissions return a clear `503` explaining that execution is
 not configured. `/health` reports the same state as `judge0`.
 
+## Deploying to Vercel
+
+Vercel is a serverless platform. This repository ships a traditional long-running
+Express server plus an exported Expo web client, so the supported one-click target
+is **Render** (see above). If you still want to use Vercel, treat it as one of:
+
+- **Frontend only (recommended on Vercel):** deploy the exported web client and
+  point it at an API hosted elsewhere (Render, Fly, etc.).
+  - Build command: `npm run build`
+  - Output directory: `app/dist`
+  - Environment variable: `EXPO_PUBLIC_API_URL=https://your-api.example.com`
+  - No server secrets (`JWT_SECRET`, `DATABASE_URL`) belong in this project.
+
+- **Full stack on Vercel:** possible only if you configure Vercel to run the
+  Node server and provide a durable database. Set these Environment Variables in
+  the Vercel dashboard (Project Settings -> Environment Variables) for Production
+  (and Preview if you use preview deployments):
+  - `NODE_ENV=production`
+  - `JWT_SECRET` - generate with `openssl rand -hex 32`; never commit it.
+  - `DATABASE_URL` - an external PostgreSQL URL (Neon, Supabase, etc.). The
+    embedded PGlite database cannot run on Vercel's read-only filesystem.
+  - `JUDGE0_URL` (optional; code questions return 503 until set)
+  - `JUDGE0_KEY`, `JUDGE0_HOST` (only for RapidAPI Judge0)
+  - `PUBLIC_URL` (your Vercel URL, if not auto-detected)
+  - `CORS_ORIGINS` (only if the web client is served from a different origin)
+  - Redeploy after adding or changing variables; Vercel does not pick them up for
+    existing deployments.
+
+The boot-time checks in `server/src/env.ts` fail fast with an actionable message
+if `JWT_SECRET` (or `DATABASE_URL` on Render/Vercel) is missing in production, so
+a misconfigured deployment surfaces in the build/runtime logs instead of
+silently issuing unsigned tokens.
+
+## Environment variables (summary)
+
+| Variable | Required in production | Notes |
+| --- | --- | --- |
+| `JWT_SECRET` | yes | HMAC key for session tokens. Generate with `openssl rand -hex 32`. |
+| `DATABASE_URL` | yes on Render/Vercel | PostgreSQL connection string. |
+| `NODE_ENV` | yes | `production` on hosts. |
+| `EXPO_PUBLIC_API_URL` | build-time | `/` for same-origin; API origin for split deploys. |
+| `JUDGE0_URL` | no | Enables code execution; otherwise 503. |
+| `PUBLIC_URL` | no | Override the public origin. |
+
 ## Question types
 
 Every lesson mixes tappable formats with a free-response challenge, ordered from easier to harder:

@@ -121,36 +121,23 @@ not configured. `/health` reports the same state as `judge0`.
 
 ## Deploying to Vercel
 
-Vercel is a serverless platform. This repository ships a traditional long-running
-Express server plus an exported Expo web client, so the supported one-click target
-is **Render** (see above). If you still want to use Vercel, treat it as one of:
+Import the repository into the Zumi project with the repository root as the
+Root Directory. The checked-in configuration exports the Expo site to
+`app/dist` and routes `/api` and `/health` to the Express function. Keep
+`EXPO_PUBLIC_API_URL` unset or set it to `/` for this same-origin setup.
 
-- **Frontend only (recommended on Vercel):** deploy the exported web client and
-  point it at an API hosted elsewhere (Render, Fly, etc.).
-  - Build command: `npm run build`
-  - Output directory: `app/dist`
-  - Environment variable: `EXPO_PUBLIC_API_URL=https://your-api.example.com`
-  - No server secrets (`JWT_SECRET`, `DATABASE_URL`) belong in this project.
+Set the following in the Vercel project's Environment Variables for Production
+and any Preview environments that will use the API:
 
-- **Full stack on Vercel:** possible only if you configure Vercel to run the
-  Node server and provide a durable database. Set these Environment Variables in
-  the Vercel dashboard (Project Settings -> Environment Variables) for Production
-  (and Preview if you use preview deployments):
-  - `NODE_ENV=production`
-  - `JWT_SECRET` - generate with `openssl rand -hex 32`; never commit it.
-  - `DATABASE_URL` - an external PostgreSQL URL (Neon, Supabase, etc.). The
-    embedded PGlite database cannot run on Vercel's read-only filesystem.
-  - `JUDGE0_URL` (optional; code questions return 503 until set)
-  - `JUDGE0_KEY`, `JUDGE0_HOST` (only for RapidAPI Judge0)
-  - `PUBLIC_URL` (your Vercel URL, if not auto-detected)
-  - `CORS_ORIGINS` (only if the web client is served from a different origin)
-  - Redeploy after adding or changing variables; Vercel does not pick them up for
-    existing deployments.
+- `DATABASE_URL` for durable PostgreSQL. Use a separate database for previews.
+- `JWT_SECRET` as a random secret of at least 32 characters per environment
+  (for example, generate it with `openssl rand -hex 32`).
+- `JUDGE0_URL` to enable code execution, and `JUDGE0_KEY` and `JUDGE0_HOST`
+  if using RapidAPI.
 
-The boot-time checks in `server/src/env.ts` fail fast with an actionable message
-if `JWT_SECRET` (or `DATABASE_URL` on Render/Vercel) is missing in production, so
-a misconfigured deployment surfaces in the build/runtime logs instead of
-silently issuing unsigned tokens.
+Redeploy when these settings change. On the new deployment, check `/health`
+for a PostgreSQL response and open a client route directly to verify that it
+loads the web app.
 
 ## Environment variables (summary)
 

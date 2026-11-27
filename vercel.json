@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm --prefix server ci --include=dev && npm --prefix app ci --include=dev",
+  "buildCommand": "npm run build",
+  "outputDirectory": "app/dist",
+  "functions": {
+    "api/zumi.ts": {
+      "includeFiles": "{content/**,server/src/migrations/*.sql}"
+    }
+  },
+  "routes": [
+    {
+      "src": "^/(api(?:/.*)?|healthz?)$",
+      "dest": "/api/zumi"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/((?:[^/]+/)*[^/.]*)$",
+      "dest": "/index.html"
+    }
+  ]
+}

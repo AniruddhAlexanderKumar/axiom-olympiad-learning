@@ -54,7 +54,19 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
 
   const text = await response.text();
-  const payload = text ? (JSON.parse(text) as Record<string, unknown>) : {};
+  let payload: Record<string, unknown> = {};
+  if (text) {
+    try {
+      const parsed: unknown = JSON.parse(text);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Invalid API response');
+      payload = parsed as Record<string, unknown>;
+    } catch {
+      const message = response.status >= 500
+        ? 'Zumi?s server is temporarily unavailable. Try again shortly.'
+        : 'Zumi?s API returned an unexpected response. Try again shortly.';
+      throw new ApiError(response.status, message);
+    }
+  }
   if (!response.ok) {
     throw new ApiError(response.status, String(payload.error ?? 'Request failed.'), payload.details);
   }

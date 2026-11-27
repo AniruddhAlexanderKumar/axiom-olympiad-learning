@@ -1,4 +1,5 @@
 import express, { Router } from 'express';
+import { query } from './db.js';
 import { config } from './env.js';
 import { errorHandler } from './http.js';
 import { authRouter } from './routes/auth.js';
@@ -36,7 +37,15 @@ export function createApp({ serveWeb = true } = {}) {
   });
 
   const webDir = serveWeb ? resolveWebDir() : null;
-  const health = (_req: express.Request, res: express.Response) => {
+  const health = async (_req: express.Request, res: express.Response) => {
+    res.setHeader('Cache-Control', 'no-store');
+    try {
+      await query('SELECT 1');
+    } catch (error) {
+      console.error('[db] health check failed', error);
+      res.status(503).json({ ok: false, error: 'Database unavailable.' });
+      return;
+    }
     res.json({
       ok: true,
       database: config.databaseUrl ? 'postgres' : 'pglite',

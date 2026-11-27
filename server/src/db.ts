@@ -18,6 +18,7 @@ async function createPgStore(): Promise<Queryable> {
     connectionString: config.databaseUrl,
     max: 10,
     connectionTimeoutMillis: 10_000,
+    query_timeout: 10_000,
     idleTimeoutMillis: 30_000,
     ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
   });

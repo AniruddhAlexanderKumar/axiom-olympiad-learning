@@ -27,8 +27,7 @@ services:
           name: zumi-db
           property: connectionString
       # Judge0 is not hosted here: point these at a self-hosted instance or the
-      # RapidAPI-hosted flavour. Until then code questions return a clear 503
-      # and every other question type keeps working.
+      # RapidAPI-hosted flavour. Code questions return 503 until configured.
       - key: JUDGE0_URL
         sync: false
       - key: JUDGE0_KEY

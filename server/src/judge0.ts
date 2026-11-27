@@ -96,10 +96,9 @@ interface BatchStatus {
 
 const TERMINAL = new Set([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
 
-/** Judge0 may be a hosted instance across the network, so bound every call. */
-async function judgeFetch(path: string, init: RequestInit = {}): Promise<Response> {
+async function judgeFetch(path: string, signal: AbortSignal, init: RequestInit = {}): Promise<Response> {
   try {
-    return await fetch(judgeUrl(path), { ...init, signal: AbortSignal.timeout(20_000) });
+    return await fetch(judgeUrl(path), { ...init, signal });
   } catch (error) {
     const timedOut = error instanceof Error && error.name === 'TimeoutError';
     throw new HttpError(
@@ -137,7 +136,9 @@ export async function runTests(options: {
     memory_limit: options.memoryLimitKb,
   }));
 
-  const submitResponse = await judgeFetch('/submissions/batch?base64_encoded=true', {
+  // Leave room for database work inside the Vercel function's 60-second limit.
+  const signal = AbortSignal.timeout(40_000);
+  const submitResponse = await judgeFetch('/submissions/batch?base64_encoded=true', signal, {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ submissions }),
@@ -146,28 +147,35 @@ export async function runTests(options: {
     throw new HttpError(502, `Judge0 rejected the submission (${submitResponse.status}).`);
   }
   const created = (await submitResponse.json()) as BatchItem[];
-  const tokens = created.map((entry) => entry.token).join(',');
+  if (!Array.isArray(created) || created.length !== options.tests.length ||
+      created.some((entry) => typeof entry?.token !== 'string' || !entry.token)) {
+    throw new HttpError(502, 'Judge0 did not start every test. Try submitting again.');
+  }
+  const tokens = created.map((entry) => entry.token);
 
-  let statuses: BatchStatus[] = [];
-  const deadline = Date.now() + 30_000;
-  while (Date.now() < deadline) {
+  let statuses = new Map<string, BatchStatus>();
+  while (!signal.aborted) {
     const poll = await judgeFetch(
-      `/submissions/batch?tokens=${tokens}&base64_encoded=true&fields=token,status,stdout,stderr,compile_output,time,memory`,
+      `/submissions/batch?tokens=${encodeURIComponent(tokens.join(','))}&base64_encoded=true&fields=token,status,stdout,stderr,compile_output,time,memory`,
+      signal,
       { headers: headers() },
     );
     if (!poll.ok) throw new HttpError(502, `Judge0 status check failed (${poll.status}).`);
     const body = (await poll.json()) as { submissions: BatchStatus[] };
-    statuses = body.submissions ?? [];
-    if (statuses.length === options.tests.length && statuses.every((entry) => TERMINAL.has(entry.status.id))) {
+    statuses = new Map((body.submissions ?? []).map((entry) => [entry.token, entry]));
+    if (tokens.every((token) => TERMINAL.has(statuses.get(token)?.status?.id ?? 0))) {
       break;
     }
     await new Promise((resolve) => setTimeout(resolve, 700));
   }
 
-  const outcomes: TestOutcome[] = options.tests.map((test, index) => {
-    const entry = statuses[index];
-    if (!entry) {
-      return { index, passed: false, status: 'Queued', message: 'Judge0 did not finish in time.', timeMs: null, memoryKb: null };
+  const outcomes: TestOutcome[] = tokens.map((token, index) => {
+    const entry = statuses.get(token);
+    if (!entry || !TERMINAL.has(entry.status?.id)) {
+      throw new HttpError(502, 'Judge0 did not finish in time. Try submitting again.');
+    }
+    if (entry.status.id === 13) {
+      throw new HttpError(502, 'Judge0 could not run a test. Try submitting again.');
     }
     const stderr = decode(entry.stderr) || decode(entry.compile_output);
     const passed = entry.status.id === 3;

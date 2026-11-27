@@ -115,9 +115,10 @@ docker compose up judge0 judge0-db judge0-redis judge0-worker
 # JUDGE0_URL=http://localhost:2358
 ```
 
-Until `JUDGE0_URL` is set, tappable question types and all lesson flows work
-normally, and code submissions return a clear `503` explaining that execution is
-not configured. `/health` reports the same state as `judge0`.
+Set `JUDGE0_URL` to complete lessons with coding questions and to grade practice
+problems and contest submissions. Without it, tappable questions still work
+and code submissions return `503`. The `judge0` field in `/health` reports
+whether Judge0 is configured.
 
 ## Deploying to Vercel
 
@@ -135,9 +136,12 @@ and any Preview environments that will use the API:
 - `JUDGE0_URL` to enable code execution, and `JUDGE0_KEY` and `JUDGE0_HOST`
   if using RapidAPI.
 
-Redeploy when these settings change. On the new deployment, check `/health`
-for a PostgreSQL response and open a client route directly to verify that it
-loads the web app.
+The Vercel build validates the required environment variables before exporting
+the app. Redeploy when these settings change. On the new deployment, check
+`/health` for HTTP 200 and `"database":"postgres"`, open `/auth` directly,
+then sign up, sign in, and submit a coding answer using a test account.
+If `/health` returns HTTP 503, check the function logs for a startup or
+database connection error.
 
 ## Environment variables (summary)
 

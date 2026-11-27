@@ -62,8 +62,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       payload = parsed as Record<string, unknown>;
     } catch {
       const message = response.status >= 500
-        ? 'Zumi?s server is temporarily unavailable. Try again shortly.'
-        : 'Zumi?s API returned an unexpected response. Try again shortly.';
+        ? 'Zumi’s server is temporarily unavailable. Try again shortly.'
+        : 'Zumi’s API returned an unexpected response. Try again shortly.';
       throw new ApiError(response.status, message);
     }
   }

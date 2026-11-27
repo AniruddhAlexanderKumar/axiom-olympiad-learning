@@ -3,16 +3,17 @@
   "private": true,
   "description": "Duolingo-style coding and contest-prep app: Expo client, Express API, PostgreSQL, Judge0.",
   "scripts": {
-    "install:all": "npm install && npm --prefix server install && npm --prefix app install",
+    "install:all": "npm ci --include=dev && npm --prefix app ci --include=dev",
     "dev": "concurrently -k -n API,APP -c cyan,blue \"npm:dev:api\" \"npm:dev:app\"",
-    "dev:api": "npm --prefix server run dev",
+    "dev:api": "npm --workspace server run dev",
     "dev:app": "npm --prefix app run web",
     "build": "npm --prefix app run build",
-    "start": "npm --prefix server start",
-    "render:build": "npm --prefix server ci --include=dev && npm --prefix app ci --include=dev && npm run build",
-    "render:start": "npm --prefix server start",
-    "typecheck": "npm --prefix server run typecheck && npm --prefix app run typecheck",
-    "test": "npm --prefix server test"
+    "start": "npm --workspace server start",
+    "render:build": "npm run install:all && npm run build",
+    "render:start": "npm --workspace server start",
+    "typecheck": "npm --workspace server run typecheck && npm --prefix app run typecheck",
+    "test": "npm --workspace server test",
+    "vercel:build": "npm --workspace server run check:config && npm run build"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
@@ -20,5 +21,8 @@
   "type": "module",
   "engines": {
     "node": "22.x"
-  }
+  },
+  "workspaces": [
+    "server"
+  ]
 }

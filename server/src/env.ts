@@ -55,7 +55,7 @@ const isVercel = Boolean(trim(process.env.VERCEL) || trim(process.env.VERCEL_ENV
 const isProduction =
   process.env.NODE_ENV === 'production' ||
   isRender ||
-  trim(process.env.VERCEL_ENV).toLowerCase() === 'production';
+  isVercel;
 
 export const config = {
   port: num(process.env.PORT, 4000),

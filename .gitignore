@@ -1,5 +1,6 @@
 node_modules/
 .expo/
+.vercel/
 .expo-shared/
 dist/
 web-build/

@@ -10,6 +10,7 @@ export interface Queryable {
 }
 
 let store: Queryable | null = null;
+let pgPool: pg.Pool | null = null;
 let closer: (() => Promise<void>) | null = null;
 
 async function createPgStore(): Promise<Queryable> {
@@ -21,6 +22,7 @@ async function createPgStore(): Promise<Queryable> {
     ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
   });
   pool.on('error', (error) => console.error('[db] idle client error:', error.message));
+  pgPool = pool;
   closer = () => pool.end();
   return {
     async query<T>(text: string, params?: unknown[]) {
@@ -54,6 +56,7 @@ export async function closeDb(): Promise<void> {
   const close = closer;
   closer = null;
   store = null;
+  pgPool = null;
   if (close) await close();
 }
 
@@ -73,6 +76,32 @@ export async function queryOne<T = Record<string, unknown>>(
 
 export async function migrate(): Promise<void> {
   const connection = await db();
+  if (!pgPool) {
+    await applyMigrations(connection);
+    return;
+  }
+
+  const client = await pgPool.connect();
+  try {
+    await client.query('BEGIN');
+    // Multiple Vercel instances can start against the same database together.
+    await client.query('SELECT pg_advisory_xact_lock(6439081)');
+    await applyMigrations({
+      async query<T>(text: string, params?: unknown[]) {
+        const result = await client.query(text, params);
+        return { rows: result.rows as T[] };
+      },
+    });
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function applyMigrations(connection: Queryable): Promise<void> {
   await connection.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
     name text PRIMARY KEY,
     applied_at timestamptz NOT NULL DEFAULT now()

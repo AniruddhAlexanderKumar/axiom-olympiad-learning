@@ -8,7 +8,7 @@ import { learnRouter } from './routes/learn.js';
 import { meRouter } from './routes/me.js';
 import { mountWeb, resolveWebDir } from './web.js';
 
-export function createApp() {
+export function createApp({ serveWeb = true } = {}) {
   const app = express();
   app.disable('x-powered-by');
   // Render terminates TLS in front of the service.
@@ -35,7 +35,7 @@ export function createApp() {
     next();
   });
 
-  const webDir = resolveWebDir();
+  const webDir = serveWeb ? resolveWebDir() : null;
   const health = (_req: express.Request, res: express.Response) => {
     res.json({
       ok: true,
@@ -59,7 +59,7 @@ export function createApp() {
     res.status(404).json({ error: 'Not found.' });
   });
 
-  mountWeb(app, webDir);
+  if (serveWeb) mountWeb(app, webDir);
 
   app.use((_req, res) => {
     res.status(404).json({ error: 'Not found.' });
